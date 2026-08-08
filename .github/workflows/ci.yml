@@ -51,6 +51,29 @@ jobs:
       - name: Build
         run: pnpm build
 
+  database:
+    name: Database (RLS/RBAC tests)
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run migrations + RLS test suite
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/postgres
+        run: ./supabase/tests/run_tests.sh
+
   ai-orchestrator:
     name: AI Orchestrator (lint, typecheck, test)
     runs-on: ubuntu-latest

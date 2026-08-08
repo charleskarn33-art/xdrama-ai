@@ -1,10 +1,13 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
+const AUTH_ONLY_PATHS = ["/dashboard"];
+const GUEST_ONLY_PATHS = ["/login", "/signup"];
+
 /**
  * Refreshes the Supabase auth session on every request so Server
- * Components always see a valid (or correctly expired) session.
- * Invoked from the root `proxy.ts`.
+ * Components always see a valid (or correctly expired) session, and
+ * redirects based on auth state. Invoked from the root `proxy.ts`.
  */
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request });
@@ -31,7 +34,21 @@ export async function updateSession(request: NextRequest) {
   );
 
   // Required: revalidates the token and must not be removed.
-  await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const { pathname } = request.nextUrl;
+
+  if (!user && AUTH_ONLY_PATHS.some((path) => pathname.startsWith(path))) {
+    const loginUrl = new URL("/login", request.url);
+    loginUrl.searchParams.set("next", pathname);
+    return NextResponse.redirect(loginUrl);
+  }
+
+  if (user && GUEST_ONLY_PATHS.some((path) => pathname.startsWith(path))) {
+    return NextResponse.redirect(new URL("/dashboard", request.url));
+  }
 
   return response;
 }

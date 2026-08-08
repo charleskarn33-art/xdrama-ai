@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -34,9 +36,11 @@ export default function Home() {
           — without ever touching the AI pipeline underneath.
         </p>
         <div className="mt-2 flex gap-3">
-          <Button size="lg">Get started</Button>
-          <Button size="lg" variant="outline">
-            View roadmap
+          <Button size="lg" asChild>
+            <Link href="/signup">Get started</Link>
+          </Button>
+          <Button size="lg" variant="outline" asChild>
+            <Link href="/login">Sign in</Link>
           </Button>
         </div>
       </div>
@@ -45,8 +49,9 @@ export default function Home() {
         <CardHeader>
           <CardTitle>Foundation status</CardTitle>
           <CardDescription>
-            Module 1 — repo scaffold, design system, and Supabase wiring are
-            live. Creative studios ship module by module from here.
+            Modules 1–2 — repo scaffold, design system, and auth/org
+            accounts are live. Creative studios ship module by module from
+            here.
           </CardDescription>
         </CardHeader>
         <CardContent>

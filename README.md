@@ -3,7 +3,7 @@
 An AI Operating System for Filmmakers — turn a script, a prompt, or an uploaded asset into a finished movie, without ever touching the AI pipeline underneath.
 
 Full architecture, audit, and module-by-module roadmap: [`docs/00-technical-audit-and-roadmap.md`](docs/00-technical-audit-and-roadmap.md).
-Module 1 (this foundation) write-up: [`docs/01-module-1-foundation.md`](docs/01-module-1-foundation.md).
+Per-module write-ups: [`docs/01-module-1-foundation.md`](docs/01-module-1-foundation.md), [`docs/02-module-2-auth-core-schema.md`](docs/02-module-2-auth-core-schema.md).
 
 ## Repository layout
 
@@ -62,6 +62,12 @@ docker compose up ai-orchestrator redis
 npx supabase link --project-ref <your-project-ref>
 npx supabase db push          # applies supabase/migrations/*.sql
 npx supabase gen types typescript --linked > apps/web/src/lib/supabase/types.ts
+```
+
+To test migrations (including RLS/RBAC policies) against a real local Postgres before pushing anywhere, see [`supabase/tests/README.md`](supabase/tests/README.md):
+
+```bash
+./supabase/tests/run_tests.sh
 ```
 
 ## Development workflow
