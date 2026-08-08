@@ -430,6 +430,47 @@ export type Database = {
           },
         ];
       };
+      scripts: {
+        Row: {
+          id: string;
+          project_id: string;
+          title: string;
+          content: string;
+          status: Database["public"]["Enums"]["script_status"];
+          created_by: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          project_id: string;
+          title: string;
+          content?: string;
+          status?: Database["public"]["Enums"]["script_status"];
+          created_by?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          project_id?: string;
+          title?: string;
+          content?: string;
+          status?: Database["public"]["Enums"]["script_status"];
+          created_by?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "scripts_project_id_fkey";
+            columns: ["project_id"];
+            isOneToOne: false;
+            referencedRelation: "projects";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
     };
     Views: Record<string, never>;
     Functions: {
@@ -464,6 +505,7 @@ export type Database = {
     Enums: {
       organization_role: "owner" | "admin" | "member";
       project_status: "draft" | "in_progress" | "completed" | "archived";
+      script_status: "draft" | "final";
     };
     CompositeTypes: Record<string, never>;
   };

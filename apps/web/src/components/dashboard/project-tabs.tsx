@@ -13,6 +13,7 @@ export function ProjectTabs({
   const pathname = usePathname();
   const tabs = [
     { label: "Settings", href: basePath },
+    { label: "Scripts", href: `${basePath}/scripts` },
     { label: "Characters", href: `${basePath}/characters` },
     { label: "Locations", href: `${basePath}/locations` },
     { label: "Timeline", href: `${basePath}/timeline` },
