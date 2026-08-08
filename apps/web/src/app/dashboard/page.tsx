@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 
-import { createClient } from "@/lib/supabase/server";
+import { requireUser } from "@/lib/supabase/session";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -20,15 +21,7 @@ export const metadata: Metadata = {
 };
 
 export default async function DashboardPage() {
-  const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/login");
-  }
+  const { supabase, user } = await requireUser();
 
   const [{ data: profile }, { data: memberships }] = await Promise.all([
     supabase.from("profiles").select("full_name, email").eq("id", user.id).single(),
@@ -37,6 +30,17 @@ export default async function DashboardPage() {
       .select("role, organizations(id, name, slug)")
       .eq("user_id", user.id),
   ]);
+
+  const organizations = (memberships ?? [])
+    .map((membership) => membership.organizations)
+    .filter((org) => org !== null);
+
+  // A single org is the common case (just signed up, created their first
+  // org) — skip straight to it instead of making them pick.
+  const [onlyOrg] = organizations;
+  if (organizations.length === 1 && onlyOrg) {
+    redirect(`/dashboard/${onlyOrg.slug}/projects`);
+  }
 
   return (
     <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-6 px-6 py-16">
@@ -62,17 +66,16 @@ export default async function DashboardPage() {
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
-          {memberships && memberships.length > 0 ? (
+          {organizations.length > 0 ? (
             <ul className="flex flex-col gap-2">
-              {memberships.map((membership) => (
-                <li
-                  key={membership.organizations?.id}
-                  className="bg-secondary flex items-center justify-between rounded-md px-4 py-3"
-                >
-                  <span className="font-medium">{membership.organizations?.name}</span>
-                  <span className="text-muted-foreground text-xs uppercase tracking-wide">
-                    {membership.role}
-                  </span>
+              {organizations.map((org) => (
+                <li key={org.id}>
+                  <Link
+                    href={`/dashboard/${org.slug}/projects`}
+                    className="bg-secondary hover:bg-secondary/70 flex items-center justify-between rounded-md px-4 py-3 transition-colors"
+                  >
+                    <span className="font-medium">{org.name}</span>
+                  </Link>
                 </li>
               ))}
             </ul>

@@ -264,6 +264,138 @@ begin
 end $$;
 
 -- ============================================================
+-- projects: RBAC-gated CRUD
+-- (at this point: carol=owner, alice=admin, bob=member of alice_org_id)
+-- ============================================================
+
+set role authenticated;
+select public.set_local_actor('00000000-0000-0000-0000-000000000001'); -- alice, admin
+
+with inserted as (
+  insert into public.projects (org_id, name, description)
+  values (test_ctx('alice_org_id')::uuid, 'Pilot Episode', 'First script')
+  returning id
+)
+insert into test_context (key, value)
+select 'project_id', id::text from inserted;
+
+do $$
+begin
+  perform test_assert(
+    'an org member (admin) can create a project, created_by defaults correctly',
+    (select created_by from public.projects where id = test_ctx('project_id')::uuid) = '00000000-0000-0000-0000-000000000001'
+  );
+
+  perform test_assert(
+    'creating a project writes an audit_logs row',
+    exists (
+      select 1 from public.audit_logs
+      where target_type = 'projects' and target_id = test_ctx('project_id') and action = 'projects.insert'
+    )
+  );
+
+  begin
+    insert into public.projects (org_id, name, created_by)
+    values (test_ctx('alice_org_id')::uuid, 'Spoofed', '00000000-0000-0000-0000-000000000002');
+    perform test_assert('cannot insert a project with created_by set to someone else', false);
+  exception when others then
+    perform test_assert('cannot insert a project with created_by set to someone else', true);
+  end;
+end $$;
+
+reset role;
+select public.clear_local_actor();
+set role authenticated;
+select public.set_local_actor('00000000-0000-0000-0000-000000000002'); -- bob, member
+
+do $$
+begin
+  perform test_assert(
+    'a plain member can see a project in their org',
+    (select count(*) from public.projects where id = test_ctx('project_id')::uuid) = 1
+  );
+end $$;
+
+update public.projects set status = 'in_progress' where id = test_ctx('project_id')::uuid;
+
+do $$
+begin
+  perform test_assert(
+    'a plain member can update a project (not just its creator)',
+    (select status from public.projects where id = test_ctx('project_id')::uuid) = 'in_progress'
+  );
+end $$;
+
+delete from public.projects where id = test_ctx('project_id')::uuid;
+
+do $$
+begin
+  perform test_assert(
+    'a plain member who did not create the project cannot delete it',
+    (select count(*) from public.projects where id = test_ctx('project_id')::uuid) = 1
+  );
+end $$;
+
+reset role;
+select public.clear_local_actor();
+set role authenticated;
+select public.set_local_actor('00000000-0000-0000-0000-000000000003'); -- carol, owner
+
+delete from public.projects where id = test_ctx('project_id')::uuid;
+
+do $$
+begin
+  perform test_assert(
+    'an org owner can delete any project in their org',
+    (select count(*) from public.projects where id = test_ctx('project_id')::uuid) = 0
+  );
+
+  perform test_assert(
+    'deleting a project writes an audit_logs row',
+    exists (
+      select 1 from public.audit_logs
+      where target_type = 'projects' and target_id = test_ctx('project_id') and action = 'projects.delete'
+    )
+  );
+end $$;
+
+-- carol creates her own second organization, unrelated to alice_org_id
+insert into test_context (key, value)
+select 'carol_org_id', (public.create_organization('Carol Studio', 'carol-studio')).id::text;
+
+with inserted as (
+  insert into public.projects (org_id, name)
+  values (test_ctx('carol_org_id')::uuid, 'Carol''s Secret Project')
+  returning id
+)
+insert into test_context (key, value)
+select 'carol_project_id', id::text from inserted;
+
+reset role;
+select public.clear_local_actor();
+set role authenticated;
+select public.set_local_actor('00000000-0000-0000-0000-000000000001'); -- alice, not a member of carol_org_id
+
+do $$
+begin
+  perform test_assert(
+    'a non-member cannot see a project in an org they do not belong to',
+    (select count(*) from public.projects where id = test_ctx('carol_project_id')::uuid) = 0
+  );
+
+  begin
+    insert into public.projects (org_id, name, created_by)
+    values (test_ctx('carol_org_id')::uuid, 'Trespass', '00000000-0000-0000-0000-000000000001');
+    perform test_assert('cannot create a project in an org you are not a member of', false);
+  exception when others then
+    perform test_assert('cannot create a project in an org you are not a member of', true);
+  end;
+end $$;
+
+reset role;
+select public.clear_local_actor();
+
+-- ============================================================
 -- anon has no access at all
 -- ============================================================
 

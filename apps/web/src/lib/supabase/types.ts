@@ -164,6 +164,54 @@ export type Database = {
           },
         ];
       };
+      projects: {
+        Row: {
+          id: string;
+          org_id: string;
+          name: string;
+          description: string | null;
+          status: Database["public"]["Enums"]["project_status"];
+          created_by: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          org_id: string;
+          name: string;
+          description?: string | null;
+          status?: Database["public"]["Enums"]["project_status"];
+          created_by?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          org_id?: string;
+          name?: string;
+          description?: string | null;
+          status?: Database["public"]["Enums"]["project_status"];
+          created_by?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "projects_org_id_fkey";
+            columns: ["org_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "projects_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
     };
     Views: Record<string, never>;
     Functions: {
@@ -193,6 +241,7 @@ export type Database = {
     };
     Enums: {
       organization_role: "owner" | "admin" | "member";
+      project_status: "draft" | "in_progress" | "completed" | "archived";
     };
     CompositeTypes: Record<string, never>;
   };
