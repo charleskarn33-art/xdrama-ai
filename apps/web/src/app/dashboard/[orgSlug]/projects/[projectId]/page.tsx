@@ -3,17 +3,11 @@ import { notFound } from "next/navigation";
 
 import { requireUser } from "@/lib/supabase/session";
 import { requireOrgMembership } from "@/lib/supabase/orgs";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 
 import { EditProjectForm } from "./edit-project-form";
 
-export const metadata: Metadata = { title: "Edit project" };
+export const metadata: Metadata = { title: "Project settings" };
 
 export default async function ProjectDetailPage({
   params,
@@ -40,11 +34,7 @@ export default async function ProjectDetailPage({
 
   return (
     <Card className="w-full max-w-lg">
-      <CardHeader>
-        <CardTitle>{project.name}</CardTitle>
-        <CardDescription>in {org.name}</CardDescription>
-      </CardHeader>
-      <CardContent>
+      <CardContent className="pt-6">
         <EditProjectForm
           orgSlug={orgSlug}
           canDelete={canDelete}

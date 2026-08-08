@@ -1,41 +1,6 @@
--- RLS / RBAC assertions, run against a fresh DB with the local auth stub
--- and all migrations applied. TAP-lite: each assertion prints ok/not ok
--- and records into test_results; the final block fails the whole script
--- (non-zero exit via ON_ERROR_STOP) if anything didn't pass.
---
--- Note: psql's `:'var'` substitution does not reach inside `do $$ ... $$`
--- bodies, so cross-statement values (like the generated org id) are
--- threaded through a real table (test_context) instead of psql variables.
-
-create table test_results (description text, passed boolean);
-create table test_context (key text primary key, value text);
-
--- Test-harness tables only: grant broadly so assertions running as
--- authenticated/anon can read/write them regardless of the RLS/RBAC
--- being exercised on the real application tables.
-grant all on test_results, test_context to anon, authenticated, service_role;
-
-create or replace function test_assert(p_description text, p_passed boolean)
-returns void
-language plpgsql
-as $$
-begin
-  insert into test_results (description, passed) values (p_description, p_passed);
-  if p_passed then
-    raise notice 'ok - %', p_description;
-  else
-    raise warning 'not ok - %', p_description;
-  end if;
-end;
-$$;
-
-create or replace function test_ctx(p_key text)
-returns text
-language sql
-stable
-as $$
-  select value from test_context where key = p_key;
-$$;
+-- Organization/RBAC assertions (Module 2/3). Uses the shared harness from
+-- harness.sql (test_assert/test_ctx/test_results/test_context) — run
+-- harness.sql first.
 
 -- ============================================================
 -- Fixtures: three users, created the way GoTrue would (direct insert into
@@ -416,19 +381,3 @@ begin
 end $$;
 
 reset role;
-
--- ============================================================
--- Summary
--- ============================================================
-
-do $$
-declare
-  v_failed int;
-  v_total int;
-begin
-  select count(*) filter (where not passed), count(*) into v_failed, v_total from test_results;
-  raise notice '--- % / % assertions passed ---', v_total - v_failed, v_total;
-  if v_failed > 0 then
-    raise exception '% assertion(s) failed', v_failed;
-  end if;
-end $$;

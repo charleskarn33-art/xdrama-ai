@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Applies every migration plus the local auth stub to a throwaway database,
-# then runs the RLS assertions in rls.test.sql. Exits non-zero on any
+# then runs every *.test.sql file in this directory. Exits non-zero on any
 # failed assertion or SQL error, so it's usable from CI.
 set -euo pipefail
 
@@ -40,5 +40,26 @@ for migration in "$MIGRATIONS_DIR"/*.sql; do
   psql "$TEST_URL" -v ON_ERROR_STOP=1 -q -f "$migration"
 done
 
-echo "==> Running RLS test suite"
-psql "$TEST_URL" -v ON_ERROR_STOP=1 -q -f "$SCRIPT_DIR/rls.test.sql"
+echo "==> Applying test harness"
+psql "$TEST_URL" -v ON_ERROR_STOP=1 -q -f "$SCRIPT_DIR/harness.sql"
+
+echo "==> Running test suites"
+for test_file in "$SCRIPT_DIR"/*.test.sql; do
+  echo "    $(basename "$test_file")"
+  psql "$TEST_URL" -v ON_ERROR_STOP=1 -q -f "$test_file"
+done
+
+echo "==> Summary"
+psql "$TEST_URL" -v ON_ERROR_STOP=1 -q -c "
+do \$\$
+declare
+  v_failed int;
+  v_total int;
+begin
+  select count(*) filter (where not passed), count(*) into v_failed, v_total from test_results;
+  raise notice '--- % / % assertions passed ---', v_total - v_failed, v_total;
+  if v_failed > 0 then
+    raise exception '% assertion(s) failed', v_failed;
+  end if;
+end \$\$;
+"
