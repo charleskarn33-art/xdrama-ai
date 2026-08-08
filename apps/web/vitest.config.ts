@@ -16,6 +16,15 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+      // Tests run in a server-like (Node) context, not a client bundle —
+      // alias to Next's own empty module for server bundles, the same
+      // resolution Next's webpack build applies there. The bare package
+      // unconditionally throws (see node_modules/server-only), since it
+      // relies on Next's bundler picking a different file per target.
+      "server-only": path.resolve(
+        __dirname,
+        "node_modules/next/dist/compiled/server-only/empty.js",
+      ),
     },
   },
 });

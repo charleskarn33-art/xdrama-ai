@@ -1,6 +1,7 @@
 "use client";
 
-import { LogOutIcon } from "lucide-react";
+import Link from "next/link";
+import { LogOutIcon, ShieldIcon } from "lucide-react";
 
 import { signOut } from "@/app/(auth)/actions";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -26,9 +27,11 @@ function initials(name: string) {
 export function UserMenu({
   fullName,
   email,
+  isPlatformAdmin = false,
 }: {
   fullName: string | null;
   email: string;
+  isPlatformAdmin?: boolean;
 }) {
   return (
     <DropdownMenu>
@@ -47,6 +50,17 @@ export function UserMenu({
           {email}
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
+        {isPlatformAdmin && (
+          <>
+            <DropdownMenuItem asChild>
+              <Link href="/admin" className="flex items-center gap-2">
+                <ShieldIcon className="size-4" />
+                Platform admin
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+          </>
+        )}
         <DropdownMenuItem asChild variant="destructive">
           <form action={signOut} className="w-full">
             <button type="submit" className="flex w-full items-center gap-2">

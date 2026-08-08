@@ -24,6 +24,7 @@ export type Database = {
           email: string;
           full_name: string | null;
           avatar_url: string | null;
+          is_platform_admin: boolean;
           created_at: string;
           updated_at: string;
         };
@@ -32,6 +33,7 @@ export type Database = {
           email: string;
           full_name?: string | null;
           avatar_url?: string | null;
+          is_platform_admin?: boolean;
           created_at?: string;
           updated_at?: string;
         };
@@ -40,6 +42,7 @@ export type Database = {
           email?: string;
           full_name?: string | null;
           avatar_url?: string | null;
+          is_platform_admin?: boolean;
           created_at?: string;
           updated_at?: string;
         };
@@ -471,6 +474,72 @@ export type Database = {
           },
         ];
       };
+      ai_models: {
+        Row: {
+          id: string;
+          slug: string;
+          name: string;
+          category: Database["public"]["Enums"]["ai_model_category"];
+          description: string | null;
+          version: string;
+          source_url: string | null;
+          supported_features: string[];
+          vram_gb: number | null;
+          disk_gb: number | null;
+          install_status: Database["public"]["Enums"]["ai_model_install_status"];
+          is_enabled: boolean;
+          health_status: Database["public"]["Enums"]["ai_model_health_status"];
+          last_health_check_at: string | null;
+          gpu_assignment: string | null;
+          benchmark_results: Json | null;
+          metadata: Json;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          slug: string;
+          name: string;
+          category: Database["public"]["Enums"]["ai_model_category"];
+          description?: string | null;
+          version?: string;
+          source_url?: string | null;
+          supported_features?: string[];
+          vram_gb?: number | null;
+          disk_gb?: number | null;
+          install_status?: Database["public"]["Enums"]["ai_model_install_status"];
+          is_enabled?: boolean;
+          health_status?: Database["public"]["Enums"]["ai_model_health_status"];
+          last_health_check_at?: string | null;
+          gpu_assignment?: string | null;
+          benchmark_results?: Json | null;
+          metadata?: Json;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          slug?: string;
+          name?: string;
+          category?: Database["public"]["Enums"]["ai_model_category"];
+          description?: string | null;
+          version?: string;
+          source_url?: string | null;
+          supported_features?: string[];
+          vram_gb?: number | null;
+          disk_gb?: number | null;
+          install_status?: Database["public"]["Enums"]["ai_model_install_status"];
+          is_enabled?: boolean;
+          health_status?: Database["public"]["Enums"]["ai_model_health_status"];
+          last_health_check_at?: string | null;
+          gpu_assignment?: string | null;
+          benchmark_results?: Json | null;
+          metadata?: Json;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: {
@@ -501,11 +570,18 @@ export type Database = {
         Args: { p_project_id: string };
         Returns: boolean;
       };
+      is_platform_admin: {
+        Args: Record<PropertyKey, never>;
+        Returns: boolean;
+      };
     };
     Enums: {
       organization_role: "owner" | "admin" | "member";
       project_status: "draft" | "in_progress" | "completed" | "archived";
       script_status: "draft" | "final";
+      ai_model_category: "video" | "image" | "audio" | "voice" | "lip_sync" | "llm";
+      ai_model_install_status: "not_installed" | "downloading" | "installed" | "failed";
+      ai_model_health_status: "unknown" | "healthy" | "unhealthy";
     };
     CompositeTypes: Record<string, never>;
   };

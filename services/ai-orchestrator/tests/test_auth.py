@@ -1,31 +1,9 @@
 import time
 
-import pytest
 from fastapi.testclient import TestClient
 from jose import jwt
 
-from app.core.config import get_settings
-
-TEST_SECRET = "test-jwt-secret"
-
-
-@pytest.fixture(autouse=True)
-def _configure_jwt_secret(monkeypatch: pytest.MonkeyPatch):
-    monkeypatch.setenv("SUPABASE_JWT_SECRET", TEST_SECRET)
-    get_settings.cache_clear()
-    yield
-    get_settings.cache_clear()
-
-
-def _make_token(**overrides: object) -> str:
-    payload = {
-        "sub": "00000000-0000-0000-0000-000000000000",
-        "role": "authenticated",
-        "aud": "authenticated",
-        "exp": int(time.time()) + 3600,
-        **overrides,
-    }
-    return jwt.encode(payload, TEST_SECRET, algorithm="HS256")
+from tests.conftest import make_token
 
 
 def test_me_requires_bearer_token(client: TestClient) -> None:
@@ -49,7 +27,7 @@ def test_me_rejects_invalid_signature(client: TestClient) -> None:
 
 
 def test_me_accepts_valid_token(client: TestClient) -> None:
-    token = _make_token()
+    token = make_token()
 
     response = client.get("/api/v1/me", headers={"Authorization": f"Bearer {token}"})
 

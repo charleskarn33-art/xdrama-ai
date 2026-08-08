@@ -1,7 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-const AUTH_ONLY_PATHS = ["/dashboard"];
+const AUTH_ONLY_PATHS = ["/dashboard", "/admin"];
 const GUEST_ONLY_PATHS = ["/login", "/signup"];
 
 /**

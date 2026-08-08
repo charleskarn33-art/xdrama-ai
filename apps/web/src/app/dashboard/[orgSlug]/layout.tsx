@@ -20,7 +20,11 @@ export default async function OrgDashboardLayout({
   await requireOrgMembership(supabase, user.id, orgSlug);
 
   const [{ data: profile }, { data: memberships }] = await Promise.all([
-    supabase.from("profiles").select("full_name, email").eq("id", user.id).single(),
+    supabase
+      .from("profiles")
+      .select("full_name, email, is_platform_admin")
+      .eq("id", user.id)
+      .single(),
     supabase
       .from("organization_members")
       .select("role, organizations(id, name, slug)")
@@ -47,7 +51,11 @@ export default async function OrgDashboardLayout({
           <Link href="/" className="text-sm font-semibold tracking-tight">
             XDrama AI Studio
           </Link>
-          <UserMenu fullName={profile?.full_name ?? null} email={profile?.email ?? user.email ?? ""} />
+          <UserMenu
+            fullName={profile?.full_name ?? null}
+            email={profile?.email ?? user.email ?? ""}
+            isPlatformAdmin={profile?.is_platform_admin ?? false}
+          />
         </header>
 
         <main className="flex flex-1 flex-col px-6 py-8">{children}</main>

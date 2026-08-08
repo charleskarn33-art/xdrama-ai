@@ -16,9 +16,19 @@ values
 
 do $$
 begin
+  -- Scoped to this file's own fixture ids, not a total table count: other
+  -- *.test.sql files insert their own auth.users rows in the same
+  -- database, and glob order across test files isn't something to rely on.
   perform test_assert(
     'handle_new_user creates a profile row for each new auth.users row',
-    (select count(*) from public.profiles) = 3
+    (
+      select count(*) from public.profiles
+      where id in (
+        '00000000-0000-0000-0000-000000000001',
+        '00000000-0000-0000-0000-000000000002',
+        '00000000-0000-0000-0000-000000000003'
+      )
+    ) = 3
   );
 end $$;
 

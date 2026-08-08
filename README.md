@@ -3,7 +3,7 @@
 An AI Operating System for Filmmakers — turn a script, a prompt, or an uploaded asset into a finished movie, without ever touching the AI pipeline underneath.
 
 Full architecture, audit, and module-by-module roadmap: [`docs/00-technical-audit-and-roadmap.md`](docs/00-technical-audit-and-roadmap.md).
-Per-module write-ups: [`docs/01-module-1-foundation.md`](docs/01-module-1-foundation.md), [`docs/02-module-2-auth-core-schema.md`](docs/02-module-2-auth-core-schema.md), [`docs/03-module-3-projects-dashboard.md`](docs/03-module-3-projects-dashboard.md), [`docs/04-module-4-story-bible.md`](docs/04-module-4-story-bible.md), [`docs/05-module-5-script-studio.md`](docs/05-module-5-script-studio.md).
+Per-module write-ups: [`docs/01-module-1-foundation.md`](docs/01-module-1-foundation.md), [`docs/02-module-2-auth-core-schema.md`](docs/02-module-2-auth-core-schema.md), [`docs/03-module-3-projects-dashboard.md`](docs/03-module-3-projects-dashboard.md), [`docs/04-module-4-story-bible.md`](docs/04-module-4-story-bible.md), [`docs/05-module-5-script-studio.md`](docs/05-module-5-script-studio.md), [`docs/06-module-6-ai-model-manager.md`](docs/06-module-6-ai-model-manager.md).
 
 ## Repository layout
 
