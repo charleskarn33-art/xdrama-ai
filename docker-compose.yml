@@ -1,0 +1,58 @@
+name: xdrama-ai
+
+# Local development / GPU render-node infrastructure.
+#
+# The Next.js app is NOT run through Docker — it's developed with
+# `pnpm dev` and deployed to Vercel. This compose file covers the pieces
+# that run on your own infrastructure: the FastAPI orchestration service,
+# its Redis queue backing, and (later) ComfyUI render nodes behind Nginx.
+#
+# Supabase itself is not defined here either — either use Supabase Cloud,
+# or run `supabase start` (Supabase CLI) which manages its own compose
+# stack under supabase/.
+
+services:
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  ai-orchestrator:
+    build:
+      context: ./services/ai-orchestrator
+    restart: unless-stopped
+    env_file:
+      - ./services/ai-orchestrator/.env
+    environment:
+      REDIS_URL: redis://redis:6379/0
+    ports:
+      - "8000:8000"
+    depends_on:
+      redis:
+        condition: service_healthy
+
+  # Reverse proxy in front of ai-orchestrator (and, from Module 8 onward,
+  # the ComfyUI render nodes it dispatches to). ComfyUI itself is never
+  # exposed publicly — see docs/00-technical-audit-and-roadmap.md, Section 3.
+  nginx:
+    image: nginx:1.27-alpine
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    volumes:
+      - ./infra/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - ai-orchestrator
+    profiles:
+      - proxy
+
+volumes:
+  redis-data:
