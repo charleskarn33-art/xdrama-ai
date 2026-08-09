@@ -8,7 +8,8 @@ insert into auth.users (id, email, raw_user_meta_data)
 values
   ('00000000-0000-0000-0000-000000000014', 'noah@example.com', '{"full_name":"Noah"}'),
   ('00000000-0000-0000-0000-000000000015', 'olivia@example.com', '{"full_name":"Olivia"}'),
-  ('00000000-0000-0000-0000-000000000016', 'petra@example.com', '{"full_name":"Petra"}');
+  ('00000000-0000-0000-0000-000000000016', 'petra@example.com', '{"full_name":"Petra"}'),
+  ('00000000-0000-0000-0000-000000000038', 'rex@example.com', '{"full_name":"Rex"}');
 
 update public.profiles set is_platform_admin = true where id = '00000000-0000-0000-0000-000000000014';
 
@@ -230,8 +231,14 @@ select public.clear_local_actor();
 -- Cross-org isolation
 -- ============================================================
 
+-- Deliberately not noah here: Module 16 gave platform admins a genuine
+-- (and separately tested, in admin_dashboard_ops.test.sql) cross-org
+-- SELECT on render_jobs, so noah — a platform admin since line 13 of
+-- this file — is no longer a valid "outsider" fixture for render_jobs.
+-- rex is a plain, non-admin user outside workflow-co, which is what this
+-- check actually needs to prove.
 set role authenticated;
-select public.set_local_actor('00000000-0000-0000-0000-000000000014'); -- noah, not in workflow-co
+select public.set_local_actor('00000000-0000-0000-0000-000000000038'); -- rex, not in workflow-co, not a platform admin
 
 do $$
 begin

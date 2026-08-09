@@ -6,9 +6,12 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 
 const TABS = [
+  { label: "Overview", href: "/admin", exact: true },
   { label: "Models", href: "/admin/models" },
   { label: "Router", href: "/admin/routing" },
   { label: "Templates", href: "/admin/templates" },
+  { label: "Organizations", href: "/admin/organizations" },
+  { label: "Audit Log", href: "/admin/audit-log" },
 ];
 
 export function AdminNav() {
@@ -17,7 +20,7 @@ export function AdminNav() {
   return (
     <nav className="flex gap-1">
       {TABS.map((tab) => {
-        const isActive = pathname.startsWith(tab.href);
+        const isActive = tab.exact ? pathname === tab.href : pathname.startsWith(tab.href);
         return (
           <Link
             key={tab.href}

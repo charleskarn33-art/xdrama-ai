@@ -8,7 +8,8 @@ insert into auth.users (id, email, raw_user_meta_data)
 values
   ('00000000-0000-0000-0000-000000000032', 'finn@example.com', '{"full_name":"Finn"}'),
   ('00000000-0000-0000-0000-000000000033', 'gwen@example.com', '{"full_name":"Gwen"}'),
-  ('00000000-0000-0000-0000-000000000034', 'hugo@example.com', '{"full_name":"Hugo"}');
+  ('00000000-0000-0000-0000-000000000034', 'hugo@example.com', '{"full_name":"Hugo"}'),
+  ('00000000-0000-0000-0000-000000000039', 'iris@example.com', '{"full_name":"Iris"}');
 
 update public.profiles set is_platform_admin = true where id = '00000000-0000-0000-0000-000000000032';
 
@@ -140,8 +141,14 @@ select public.clear_local_actor();
 -- Cross-org isolation
 -- ============================================================
 
+-- Deliberately not finn here: Module 16 gave platform admins a genuine
+-- (and separately tested, in admin_dashboard_ops.test.sql) cross-org
+-- SELECT on export_jobs, so finn — a platform admin since line 13 of
+-- this file — is no longer a valid "outsider" fixture for export_jobs.
+-- iris is a plain, non-admin user outside export-co, which is what this
+-- check actually needs to prove.
 set role authenticated;
-select public.set_local_actor('00000000-0000-0000-0000-000000000032'); -- finn, not in export-co (platform admin, but not an org member)
+select public.set_local_actor('00000000-0000-0000-0000-000000000039'); -- iris, not in export-co, not a platform admin
 
 do $$
 begin
