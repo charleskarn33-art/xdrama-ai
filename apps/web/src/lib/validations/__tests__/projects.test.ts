@@ -32,8 +32,7 @@ describe("createProjectSchema", () => {
 
   it("rejects an empty name", () => {
     expect(
-      createProjectSchema.safeParse({ orgId: validOrgId, name: "  " })
-        .success,
+      createProjectSchema.safeParse({ orgId: validOrgId, name: "  " }).success,
     ).toBe(false);
   });
 

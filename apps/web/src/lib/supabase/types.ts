@@ -300,6 +300,47 @@ export type Database = {
           },
         ];
       };
+      props: {
+        Row: {
+          id: string;
+          project_id: string;
+          name: string;
+          description: string | null;
+          appearance: string | null;
+          created_by: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          project_id: string;
+          name: string;
+          description?: string | null;
+          appearance?: string | null;
+          created_by?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          project_id?: string;
+          name?: string;
+          description?: string | null;
+          appearance?: string | null;
+          created_by?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "props_project_id_fkey";
+            columns: ["project_id"];
+            isOneToOne: false;
+            referencedRelation: "projects";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       character_relationships: {
         Row: {
           id: string;
@@ -610,6 +651,9 @@ export type Database = {
           name: string;
           graph: Json;
           source_template_id: string | null;
+          subject_type:
+            Database["public"]["Enums"]["workflow_subject_type"] | null;
+          subject_id: string | null;
           created_by: string;
           created_at: string;
           updated_at: string;
@@ -620,6 +664,9 @@ export type Database = {
           name: string;
           graph: Json;
           source_template_id?: string | null;
+          subject_type?:
+            Database["public"]["Enums"]["workflow_subject_type"] | null;
+          subject_id?: string | null;
           created_by?: string;
           created_at?: string;
           updated_at?: string;
@@ -630,6 +677,9 @@ export type Database = {
           name?: string;
           graph?: Json;
           source_template_id?: string | null;
+          subject_type?:
+            Database["public"]["Enums"]["workflow_subject_type"] | null;
+          subject_id?: string | null;
           created_by?: string;
           created_at?: string;
           updated_at?: string;
@@ -757,10 +807,14 @@ export type Database = {
       organization_role: "owner" | "admin" | "member";
       project_status: "draft" | "in_progress" | "completed" | "archived";
       script_status: "draft" | "final";
-      ai_model_category: "video" | "image" | "audio" | "voice" | "lip_sync" | "llm";
-      ai_model_install_status: "not_installed" | "downloading" | "installed" | "failed";
+      ai_model_category:
+        "video" | "image" | "audio" | "voice" | "lip_sync" | "llm";
+      ai_model_install_status:
+        "not_installed" | "downloading" | "installed" | "failed";
       ai_model_health_status: "unknown" | "healthy" | "unhealthy";
-      render_job_status: "queued" | "running" | "completed" | "failed" | "cancelled";
+      render_job_status:
+        "queued" | "running" | "completed" | "failed" | "cancelled";
+      workflow_subject_type: "character" | "location" | "prop";
     };
     CompositeTypes: Record<string, never>;
   };

@@ -4,6 +4,7 @@ import {
   createCharacterSchema,
   createLocationSchema,
   createNoteSchema,
+  createPropSchema,
   createRelationshipSchema,
   createTimelineEventSchema,
   updateCharacterSchema,
@@ -81,6 +82,31 @@ describe("createLocationSchema", () => {
   });
 });
 
+describe("createPropSchema", () => {
+  it("accepts a minimal payload", () => {
+    expect(
+      createPropSchema.safeParse({ projectId, name: "Rusted Lantern" }).success,
+    ).toBe(true);
+  });
+
+  it("accepts a full payload", () => {
+    expect(
+      createPropSchema.safeParse({
+        projectId,
+        name: "Rusted Lantern",
+        description: "Belonged to the lighthouse keeper",
+        appearance: "Dented brass, cracked lens",
+      }).success,
+    ).toBe(true);
+  });
+
+  it("rejects an empty name", () => {
+    expect(createPropSchema.safeParse({ projectId, name: " " }).success).toBe(
+      false,
+    );
+  });
+});
+
 describe("createTimelineEventSchema", () => {
   it("accepts a valid payload", () => {
     expect(
@@ -117,8 +143,7 @@ describe("createTimelineEventSchema", () => {
 describe("createNoteSchema", () => {
   it("accepts a minimal payload", () => {
     expect(
-      createNoteSchema.safeParse({ projectId, title: "Magic system" })
-        .success,
+      createNoteSchema.safeParse({ projectId, title: "Magic system" }).success,
     ).toBe(true);
   });
 

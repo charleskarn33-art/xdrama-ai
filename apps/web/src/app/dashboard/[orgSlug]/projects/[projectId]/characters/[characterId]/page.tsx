@@ -2,15 +2,15 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { requireUser } from "@/lib/supabase/session";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { getReferenceArtData } from "@/lib/reference-art/fetch";
+import { ReferenceArtPanel } from "@/components/dashboard/reference-art-panel";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 import { EditCharacterForm } from "./edit-character-form";
-import { RelationshipsPanel, type RelationshipRow } from "./relationships-panel";
+import {
+  RelationshipsPanel,
+  type RelationshipRow,
+} from "./relationships-panel";
 
 export const metadata: Metadata = { title: "Character" };
 
@@ -22,29 +22,41 @@ export default async function CharacterDetailPage({
   const { orgSlug, projectId, characterId } = await params;
   const { supabase } = await requireUser();
 
-  const [{ data: character }, { data: otherCharacters }, { data: outgoing }, { data: incoming }] =
-    await Promise.all([
-      supabase
-        .from("characters")
-        .select("id, name, description, appearance, personality, voice_description")
-        .eq("id", characterId)
-        .eq("project_id", projectId)
-        .single(),
-      supabase
-        .from("characters")
-        .select("id, name")
-        .eq("project_id", projectId)
-        .neq("id", characterId)
-        .order("name"),
-      supabase
-        .from("character_relationships")
-        .select("id, relationship_type, description, related_character:characters!character_relationships_related_character_id_fkey(name)")
-        .eq("character_id", characterId),
-      supabase
-        .from("character_relationships")
-        .select("id, relationship_type, description, character:characters!character_relationships_character_id_fkey(name)")
-        .eq("related_character_id", characterId),
-    ]);
+  const [
+    { data: character },
+    { data: otherCharacters },
+    { data: outgoing },
+    { data: incoming },
+    referenceArt,
+  ] = await Promise.all([
+    supabase
+      .from("characters")
+      .select(
+        "id, name, description, appearance, personality, voice_description",
+      )
+      .eq("id", characterId)
+      .eq("project_id", projectId)
+      .single(),
+    supabase
+      .from("characters")
+      .select("id, name")
+      .eq("project_id", projectId)
+      .neq("id", characterId)
+      .order("name"),
+    supabase
+      .from("character_relationships")
+      .select(
+        "id, relationship_type, description, related_character:characters!character_relationships_related_character_id_fkey(name)",
+      )
+      .eq("character_id", characterId),
+    supabase
+      .from("character_relationships")
+      .select(
+        "id, relationship_type, description, character:characters!character_relationships_character_id_fkey(name)",
+      )
+      .eq("related_character_id", characterId),
+    getReferenceArtData(supabase, "character", characterId),
+  ]);
 
   if (!character) {
     notFound();
@@ -98,6 +110,26 @@ export default async function CharacterDetailPage({
             characterId={characterId}
             relationships={relationships}
             otherCharacters={otherCharacters ?? []}
+          />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Reference art</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ReferenceArtPanel
+            orgSlug={orgSlug}
+            projectId={projectId}
+            subjectType="character"
+            subjectId={characterId}
+            subjectName={character.name}
+            description={[character.appearance, character.description]
+              .filter(Boolean)
+              .join("\n\n")}
+            initialWorkflowId={referenceArt.workflowId}
+            initialJobs={referenceArt.jobs}
           />
         </CardContent>
       </Card>

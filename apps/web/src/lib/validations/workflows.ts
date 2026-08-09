@@ -25,7 +25,9 @@ export type WorkflowEdge = z.infer<typeof workflowEdgeSchema>;
 // and its real-Postgres tests), and a save that violates it surfaces that
 // error to the user rather than silently disagreeing with the database.
 export const workflowGraphSchema = z.object({
-  nodes: z.array(workflowNodeSchema).min(1, "A workflow needs at least one node"),
+  nodes: z
+    .array(workflowNodeSchema)
+    .min(1, "A workflow needs at least one node"),
   edges: z.array(workflowEdgeSchema),
 });
 export type WorkflowGraph = z.infer<typeof workflowGraphSchema>;

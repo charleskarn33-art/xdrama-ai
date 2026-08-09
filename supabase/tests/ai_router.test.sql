@@ -17,8 +17,8 @@ select public.set_local_actor('00000000-0000-0000-0000-000000000013'); -- mia, n
 do $$
 begin
   perform test_assert(
-    'the seed migration populated the six routing rules from the brief',
-    (select count(*) from public.routing_rules) = 6
+    'the seed migration populated the six video routing rules from the brief',
+    (select count(*) from public.routing_rules where category = 'video') = 6
   );
 
   perform test_assert(

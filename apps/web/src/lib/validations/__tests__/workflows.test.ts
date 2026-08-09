@@ -12,14 +12,24 @@ const uuid2 = "22222222-2222-4222-8222-222222222222";
 
 const VALID_GRAPH = {
   nodes: [
-    { id: "a", type: "input", position: { x: 0, y: 0 }, config: { key: "script" } },
+    {
+      id: "a",
+      type: "input",
+      position: { x: 0, y: 0 },
+      config: { key: "script" },
+    },
     {
       id: "b",
       type: "model_task",
       position: { x: 200, y: 0 },
       config: { taskType: "movie", params: {} },
     },
-    { id: "c", type: "output", position: { x: 400, y: 0 }, config: { key: "video" } },
+    {
+      id: "c",
+      type: "output",
+      position: { x: 400, y: 0 },
+      config: { key: "video" },
+    },
   ],
   edges: [
     { id: "e1", source: "a", target: "b" },
@@ -83,7 +93,8 @@ describe("createWorkflowFromTemplateSchema", () => {
 describe("updateWorkflowSchema", () => {
   it("accepts a name-only update", () => {
     expect(
-      updateWorkflowSchema.safeParse({ workflowId: uuid1, name: "Renamed" }).success,
+      updateWorkflowSchema.safeParse({ workflowId: uuid1, name: "Renamed" })
+        .success,
     ).toBe(true);
   });
 

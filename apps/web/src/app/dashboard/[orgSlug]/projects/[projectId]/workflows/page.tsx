@@ -34,6 +34,7 @@ export default async function WorkflowsPage({
       .from("workflows")
       .select("id, name, updated_at")
       .eq("project_id", projectId)
+      .is("subject_type", null)
       .order("updated_at", { ascending: false }),
     supabase
       .from("workflow_templates")

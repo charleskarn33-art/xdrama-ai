@@ -5,17 +5,14 @@ import { usePathname } from "next/navigation";
 
 import { cn } from "@/lib/utils";
 
-export function ProjectTabs({
-  basePath,
-}: {
-  basePath: string;
-}) {
+export function ProjectTabs({ basePath }: { basePath: string }) {
   const pathname = usePathname();
   const tabs = [
     { label: "Settings", href: basePath },
     { label: "Scripts", href: `${basePath}/scripts` },
     { label: "Characters", href: `${basePath}/characters` },
     { label: "Locations", href: `${basePath}/locations` },
+    { label: "Props", href: `${basePath}/props` },
     { label: "Timeline", href: `${basePath}/timeline` },
     { label: "Notes", href: `${basePath}/notes` },
     { label: "Workflows", href: `${basePath}/workflows` },
@@ -25,7 +22,9 @@ export function ProjectTabs({
     <div className="flex gap-1 border-b">
       {tabs.map((tab) => {
         const isActive =
-          tab.href === basePath ? pathname === basePath : pathname.startsWith(tab.href);
+          tab.href === basePath
+            ? pathname === basePath
+            : pathname.startsWith(tab.href);
         return (
           <Link
             key={tab.href}

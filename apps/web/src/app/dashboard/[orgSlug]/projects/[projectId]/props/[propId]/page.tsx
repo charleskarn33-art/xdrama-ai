@@ -6,29 +6,29 @@ import { getReferenceArtData } from "@/lib/reference-art/fetch";
 import { ReferenceArtPanel } from "@/components/dashboard/reference-art-panel";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-import { EditLocationForm } from "./edit-location-form";
+import { EditPropForm } from "./edit-prop-form";
 
-export const metadata: Metadata = { title: "Location" };
+export const metadata: Metadata = { title: "Prop" };
 
-export default async function LocationDetailPage({
+export default async function PropDetailPage({
   params,
 }: {
-  params: Promise<{ orgSlug: string; projectId: string; locationId: string }>;
+  params: Promise<{ orgSlug: string; projectId: string; propId: string }>;
 }) {
-  const { orgSlug, projectId, locationId } = await params;
+  const { orgSlug, projectId, propId } = await params;
   const { supabase } = await requireUser();
 
-  const [{ data: location }, referenceArt] = await Promise.all([
+  const [{ data: prop }, referenceArt] = await Promise.all([
     supabase
-      .from("locations")
-      .select("id, name, description")
-      .eq("id", locationId)
+      .from("props")
+      .select("id, name, description, appearance")
+      .eq("id", propId)
       .eq("project_id", projectId)
       .single(),
-    getReferenceArtData(supabase, "location", locationId),
+    getReferenceArtData(supabase, "prop", propId),
   ]);
 
-  if (!location) {
+  if (!prop) {
     notFound();
   }
 
@@ -36,16 +36,17 @@ export default async function LocationDetailPage({
     <div className="grid gap-6 lg:grid-cols-2">
       <Card className="w-full max-w-lg">
         <CardHeader>
-          <CardTitle>{location.name}</CardTitle>
+          <CardTitle>{prop.name}</CardTitle>
         </CardHeader>
         <CardContent>
-          <EditLocationForm
+          <EditPropForm
             orgSlug={orgSlug}
             projectId={projectId}
-            location={{
-              locationId: location.id,
-              name: location.name,
-              description: location.description ?? "",
+            prop={{
+              propId: prop.id,
+              name: prop.name,
+              description: prop.description ?? "",
+              appearance: prop.appearance ?? "",
             }}
           />
         </CardContent>
@@ -59,10 +60,12 @@ export default async function LocationDetailPage({
           <ReferenceArtPanel
             orgSlug={orgSlug}
             projectId={projectId}
-            subjectType="location"
-            subjectId={locationId}
-            subjectName={location.name}
-            description={location.description ?? ""}
+            subjectType="prop"
+            subjectId={propId}
+            subjectName={prop.name}
+            description={[prop.appearance, prop.description]
+              .filter(Boolean)
+              .join("\n\n")}
             initialWorkflowId={referenceArt.workflowId}
             initialJobs={referenceArt.jobs}
           />

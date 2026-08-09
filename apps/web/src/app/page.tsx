@@ -49,10 +49,11 @@ export default function Home() {
         <CardHeader>
           <CardTitle>Foundation status</CardTitle>
           <CardDescription>
-            Modules 1–8 — repo scaffold, design system, auth/org accounts,
+            Modules 1–9 — repo scaffold, design system, auth/org accounts,
             projects, the Story Bible, Script Studio, the AI Model Manager,
-            the AI Router, and the AI Workflow Engine are live. Creative
-            studios ship module by module from here.
+            the AI Router, the AI Workflow Engine, and the Character/
+            Environment/Prop Studios are live. Creative studios ship module
+            by module from here.
           </CardDescription>
         </CardHeader>
         <CardContent>
