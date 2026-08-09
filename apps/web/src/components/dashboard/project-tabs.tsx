@@ -15,6 +15,7 @@ export function ProjectTabs({ basePath }: { basePath: string }) {
     { label: "Props", href: `${basePath}/props` },
     { label: "Scenes", href: `${basePath}/scenes` },
     { label: "Timeline", href: `${basePath}/timeline` },
+    { label: "Movie Composer", href: `${basePath}/movies` },
     { label: "Notes", href: `${basePath}/notes` },
     { label: "Workflows", href: `${basePath}/workflows` },
   ];

@@ -921,6 +921,111 @@ export type Database = {
           },
         ];
       };
+      movie_timelines: {
+        Row: {
+          id: string;
+          project_id: string;
+          name: string;
+          description: string | null;
+          created_by: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          project_id: string;
+          name: string;
+          description?: string | null;
+          created_by?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          project_id?: string;
+          name?: string;
+          description?: string | null;
+          created_by?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "movie_timelines_project_id_fkey";
+            columns: ["project_id"];
+            isOneToOne: false;
+            referencedRelation: "projects";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      timeline_clips: {
+        Row: {
+          id: string;
+          project_id: string;
+          timeline_id: string;
+          shot_id: string;
+          clip_order: number;
+          trim_start_seconds: number | null;
+          trim_end_seconds: number | null;
+          transition_in: Database["public"]["Enums"]["timeline_transition"];
+          source_render_job_id: string | null;
+          created_by: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          project_id?: string;
+          timeline_id: string;
+          shot_id: string;
+          clip_order?: number;
+          trim_start_seconds?: number | null;
+          trim_end_seconds?: number | null;
+          transition_in?: Database["public"]["Enums"]["timeline_transition"];
+          source_render_job_id?: string | null;
+          created_by?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          project_id?: string;
+          timeline_id?: string;
+          shot_id?: string;
+          clip_order?: number;
+          trim_start_seconds?: number | null;
+          trim_end_seconds?: number | null;
+          transition_in?: Database["public"]["Enums"]["timeline_transition"];
+          source_render_job_id?: string | null;
+          created_by?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "timeline_clips_timeline_id_fkey";
+            columns: ["timeline_id"];
+            isOneToOne: false;
+            referencedRelation: "movie_timelines";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "timeline_clips_shot_id_fkey";
+            columns: ["shot_id"];
+            isOneToOne: false;
+            referencedRelation: "shots";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "timeline_clips_source_render_job_id_fkey";
+            columns: ["source_render_job_id"];
+            isOneToOne: false;
+            referencedRelation: "render_jobs";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
     };
     Views: Record<string, never>;
     Functions: {
@@ -972,6 +1077,7 @@ export type Database = {
       render_job_status:
         "queued" | "running" | "completed" | "failed" | "cancelled";
       workflow_subject_type: "character" | "location" | "prop" | "shot";
+      timeline_transition: "cut" | "fade" | "dissolve" | "wipe";
     };
     CompositeTypes: Record<string, never>;
   };
