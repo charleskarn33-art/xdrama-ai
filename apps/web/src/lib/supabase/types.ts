@@ -1236,6 +1236,108 @@ export type Database = {
           },
         ];
       };
+      export_presets: {
+        Row: {
+          id: string;
+          slug: string;
+          name: string;
+          platform: string;
+          width: number;
+          height: number;
+          format: string;
+          fps: number;
+          description: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          slug: string;
+          name: string;
+          platform: string;
+          width: number;
+          height: number;
+          format: string;
+          fps?: number;
+          description?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          slug?: string;
+          name?: string;
+          platform?: string;
+          width?: number;
+          height?: number;
+          format?: string;
+          fps?: number;
+          description?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      export_jobs: {
+        Row: {
+          id: string;
+          project_id: string;
+          timeline_id: string;
+          preset_id: string | null;
+          status: Database["public"]["Enums"]["export_job_status"];
+          output_asset_url: string | null;
+          error_message: string | null;
+          created_by: string;
+          created_at: string;
+          updated_at: string;
+          started_at: string | null;
+          completed_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          project_id?: string;
+          timeline_id: string;
+          preset_id?: string | null;
+          status?: Database["public"]["Enums"]["export_job_status"];
+          output_asset_url?: string | null;
+          error_message?: string | null;
+          created_by?: string;
+          created_at?: string;
+          updated_at?: string;
+          started_at?: string | null;
+          completed_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          project_id?: string;
+          timeline_id?: string;
+          preset_id?: string | null;
+          status?: Database["public"]["Enums"]["export_job_status"];
+          output_asset_url?: string | null;
+          error_message?: string | null;
+          created_by?: string;
+          created_at?: string;
+          updated_at?: string;
+          started_at?: string | null;
+          completed_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "export_jobs_timeline_id_fkey";
+            columns: ["timeline_id"];
+            isOneToOne: false;
+            referencedRelation: "movie_timelines";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "export_jobs_preset_id_fkey";
+            columns: ["preset_id"];
+            isOneToOne: false;
+            referencedRelation: "export_presets";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
     };
     Views: Record<string, never>;
     Functions: {
@@ -1296,6 +1398,8 @@ export type Database = {
       timeline_transition: "cut" | "fade" | "dissolve" | "wipe";
       ai_advisor_role: "director" | "cinematographer" | "producer";
       ai_suggestion_status: "pending" | "running" | "completed" | "failed";
+      export_job_status:
+        "queued" | "running" | "completed" | "failed" | "cancelled";
     };
     CompositeTypes: Record<string, never>;
   };
