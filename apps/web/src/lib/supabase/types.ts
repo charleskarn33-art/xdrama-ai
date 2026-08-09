@@ -540,9 +540,43 @@ export type Database = {
         };
         Relationships: [];
       };
+      routing_rules: {
+        Row: {
+          id: string;
+          task_type: string;
+          category: Database["public"]["Enums"]["ai_model_category"];
+          description: string | null;
+          preferred_model_slugs: string[];
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          task_type: string;
+          category: Database["public"]["Enums"]["ai_model_category"];
+          description?: string | null;
+          preferred_model_slugs: string[];
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          task_type?: string;
+          category?: Database["public"]["Enums"]["ai_model_category"];
+          description?: string | null;
+          preferred_model_slugs?: string[];
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: {
+      select_model_for_task: {
+        Args: { p_task_type: string; p_override_slug?: string | null };
+        Returns: Database["public"]["Tables"]["ai_models"]["Row"];
+      };
       create_organization: {
         Args: { p_name: string; p_slug: string };
         Returns: Database["public"]["Tables"]["organizations"]["Row"];

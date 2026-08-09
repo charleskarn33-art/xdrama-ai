@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 
 import { requirePlatformAdmin } from "@/lib/supabase/session";
+import { AdminNav } from "@/components/dashboard/admin-nav";
 
 export default async function AdminLayout({ children }: { children: ReactNode }) {
   await requirePlatformAdmin();
@@ -14,6 +15,7 @@ export default async function AdminLayout({ children }: { children: ReactNode })
             XDrama AI Studio
           </Link>
           <span className="text-muted-foreground text-sm">Platform Admin</span>
+          <AdminNav />
         </div>
         <Link
           href="/dashboard"
