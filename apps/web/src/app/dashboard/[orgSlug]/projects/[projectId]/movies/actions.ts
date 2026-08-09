@@ -16,6 +16,11 @@ import {
   type UpdateClipInput,
   type UpdateTimelineInput,
 } from "@/lib/validations/movie-composer";
+import {
+  createSubtitleSchema,
+  deleteSubtitleSchema,
+  type CreateSubtitleInput,
+} from "@/lib/validations/audio-studio";
 
 export type ActionResult = { error: string } | { error: null };
 
@@ -185,6 +190,61 @@ export async function deleteClip(
   }
   if (!count) {
     return { error: "You don't have permission to remove this clip." };
+  }
+
+  revalidatePath(`${basePath(orgSlug, projectId)}/${timelineId}`);
+  return { error: null };
+}
+
+export async function addSubtitle(
+  orgSlug: string,
+  projectId: string,
+  input: CreateSubtitleInput,
+): Promise<ActionResult> {
+  const parsed = createSubtitleSchema.safeParse(input);
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase.from("subtitles").insert({
+    timeline_id: parsed.data.timelineId,
+    voice_line_id: parsed.data.voiceLineId || null,
+    start_seconds: parsed.data.startSeconds,
+    end_seconds: parsed.data.endSeconds,
+    text: parsed.data.text,
+  });
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  revalidatePath(`${basePath(orgSlug, projectId)}/${parsed.data.timelineId}`);
+  return { error: null };
+}
+
+export async function deleteSubtitle(
+  orgSlug: string,
+  projectId: string,
+  timelineId: string,
+  subtitleId: string,
+): Promise<ActionResult> {
+  const parsed = deleteSubtitleSchema.safeParse({ subtitleId });
+  if (!parsed.success) {
+    return { error: "Invalid input" };
+  }
+
+  const supabase = await createClient();
+  const { error, count } = await supabase
+    .from("subtitles")
+    .delete({ count: "exact" })
+    .eq("id", parsed.data.subtitleId);
+
+  if (error) {
+    return { error: error.message };
+  }
+  if (!count) {
+    return { error: "You don't have permission to remove this subtitle." };
   }
 
   revalidatePath(`${basePath(orgSlug, projectId)}/${timelineId}`);

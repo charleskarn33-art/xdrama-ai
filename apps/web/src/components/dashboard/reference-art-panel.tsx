@@ -29,6 +29,9 @@ export function ReferenceArtPanel({
   description,
   initialWorkflowId,
   initialJobs,
+  title = "Reference art",
+  generateLabel = "reference image",
+  emptyLabel = "No reference art generated yet.",
 }: {
   orgSlug: string;
   projectId: string;
@@ -38,6 +41,13 @@ export function ReferenceArtPanel({
   description: string;
   initialWorkflowId: string | null;
   initialJobs: ReferenceArtJob[];
+  // This panel is reused for every generated-asset type (images for
+  // characters/locations/props/shots, audio for voice lines/music
+  // tracks) — these three let each caller describe what it's generating
+  // without the panel needing to know or guess from subjectType.
+  title?: string;
+  generateLabel?: string;
+  emptyLabel?: string;
 }) {
   const pathname = usePathname();
   const [workflowId, setWorkflowId] = React.useState(initialWorkflowId);
@@ -109,13 +119,13 @@ export function ReferenceArtPanel({
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold">Reference art</h3>
+        <h3 className="text-sm font-semibold">{title}</h3>
         <Button size="sm" disabled={isGenerating} onClick={handleGenerate}>
           {isGenerating
             ? "Starting..."
             : jobs.length > 0
               ? "Regenerate"
-              : "Generate reference image"}
+              : `Generate ${generateLabel}`}
         </Button>
       </div>
 
@@ -140,9 +150,7 @@ export function ReferenceArtPanel({
           ))}
         </ul>
       ) : (
-        <p className="text-muted-foreground text-sm">
-          No reference art generated yet.
-        </p>
+        <p className="text-muted-foreground text-sm">{emptyLabel}</p>
       )}
 
       {jobs

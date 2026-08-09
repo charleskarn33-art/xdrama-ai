@@ -1026,6 +1026,166 @@ export type Database = {
           },
         ];
       };
+      voice_lines: {
+        Row: {
+          id: string;
+          project_id: string;
+          character_id: string | null;
+          shot_id: string | null;
+          line_order: number;
+          text: string;
+          created_by: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          project_id: string;
+          character_id?: string | null;
+          shot_id?: string | null;
+          line_order?: number;
+          text: string;
+          created_by?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          project_id?: string;
+          character_id?: string | null;
+          shot_id?: string | null;
+          line_order?: number;
+          text?: string;
+          created_by?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "voice_lines_project_id_fkey";
+            columns: ["project_id"];
+            isOneToOne: false;
+            referencedRelation: "projects";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "voice_lines_character_id_fkey";
+            columns: ["character_id"];
+            isOneToOne: false;
+            referencedRelation: "characters";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "voice_lines_shot_id_fkey";
+            columns: ["shot_id"];
+            isOneToOne: false;
+            referencedRelation: "shots";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      music_tracks: {
+        Row: {
+          id: string;
+          project_id: string;
+          scene_id: string | null;
+          name: string;
+          description: string | null;
+          created_by: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          project_id: string;
+          scene_id?: string | null;
+          name: string;
+          description?: string | null;
+          created_by?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          project_id?: string;
+          scene_id?: string | null;
+          name?: string;
+          description?: string | null;
+          created_by?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "music_tracks_project_id_fkey";
+            columns: ["project_id"];
+            isOneToOne: false;
+            referencedRelation: "projects";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "music_tracks_scene_id_fkey";
+            columns: ["scene_id"];
+            isOneToOne: false;
+            referencedRelation: "scenes";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      subtitles: {
+        Row: {
+          id: string;
+          project_id: string;
+          timeline_id: string;
+          voice_line_id: string | null;
+          start_seconds: number;
+          end_seconds: number;
+          text: string;
+          created_by: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          project_id?: string;
+          timeline_id: string;
+          voice_line_id?: string | null;
+          start_seconds: number;
+          end_seconds: number;
+          text: string;
+          created_by?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          project_id?: string;
+          timeline_id?: string;
+          voice_line_id?: string | null;
+          start_seconds?: number;
+          end_seconds?: number;
+          text?: string;
+          created_by?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "subtitles_timeline_id_fkey";
+            columns: ["timeline_id"];
+            isOneToOne: false;
+            referencedRelation: "movie_timelines";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "subtitles_voice_line_id_fkey";
+            columns: ["voice_line_id"];
+            isOneToOne: false;
+            referencedRelation: "voice_lines";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
     };
     Views: Record<string, never>;
     Functions: {
@@ -1076,7 +1236,13 @@ export type Database = {
       ai_model_health_status: "unknown" | "healthy" | "unhealthy";
       render_job_status:
         "queued" | "running" | "completed" | "failed" | "cancelled";
-      workflow_subject_type: "character" | "location" | "prop" | "shot";
+      workflow_subject_type:
+        | "character"
+        | "location"
+        | "prop"
+        | "shot"
+        | "voice_line"
+        | "music_track";
       timeline_transition: "cut" | "fade" | "dissolve" | "wipe";
     };
     CompositeTypes: Record<string, never>;

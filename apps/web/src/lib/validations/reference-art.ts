@@ -5,6 +5,8 @@ export const REFERENCE_ART_SUBJECT_TYPES = [
   "location",
   "prop",
   "shot",
+  "voice_line",
+  "music_track",
 ] as const;
 export type ReferenceArtSubjectType =
   (typeof REFERENCE_ART_SUBJECT_TYPES)[number];

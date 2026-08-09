@@ -16,6 +16,8 @@ export function ProjectTabs({ basePath }: { basePath: string }) {
     { label: "Scenes", href: `${basePath}/scenes` },
     { label: "Timeline", href: `${basePath}/timeline` },
     { label: "Movie Composer", href: `${basePath}/movies` },
+    { label: "Voice Studio", href: `${basePath}/voice` },
+    { label: "Music Studio", href: `${basePath}/music` },
     { label: "Notes", href: `${basePath}/notes` },
     { label: "Workflows", href: `${basePath}/workflows` },
   ];

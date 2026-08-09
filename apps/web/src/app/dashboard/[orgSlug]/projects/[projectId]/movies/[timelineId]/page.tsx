@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { EditTimelineForm } from "./edit-timeline-form";
 import { AddClipForm, type AvailableShot } from "./add-clip-form";
 import { ClipRow, type ClipRowData } from "./clip-row";
+import { SubtitlesPanel, type SubtitleRow } from "./subtitles-panel";
 
 export const metadata: Metadata = { title: "Timeline" };
 
@@ -18,24 +19,39 @@ export default async function TimelineDetailPage({
   const { orgSlug, projectId, timelineId } = await params;
   const { supabase } = await requireUser();
 
-  const [{ data: timeline }, { data: scenes }, { data: clips }] =
-    await Promise.all([
-      supabase
-        .from("movie_timelines")
-        .select("id, name, description")
-        .eq("id", timelineId)
-        .eq("project_id", projectId)
-        .single(),
-      supabase.from("scenes").select("id, title").eq("project_id", projectId),
-      supabase
-        .from("timeline_clips")
-        .select(
-          "id, clip_order, transition_in, trim_start_seconds, trim_end_seconds, source_render_job_id, shot:shots(id, shot_order, description, scene_id)",
-        )
-        .eq("timeline_id", timelineId)
-        .order("clip_order")
-        .order("created_at"),
-    ]);
+  const [
+    { data: timeline },
+    { data: scenes },
+    { data: clips },
+    { data: subtitles },
+    { data: voiceLines },
+  ] = await Promise.all([
+    supabase
+      .from("movie_timelines")
+      .select("id, name, description")
+      .eq("id", timelineId)
+      .eq("project_id", projectId)
+      .single(),
+    supabase.from("scenes").select("id, title").eq("project_id", projectId),
+    supabase
+      .from("timeline_clips")
+      .select(
+        "id, clip_order, transition_in, trim_start_seconds, trim_end_seconds, source_render_job_id, shot:shots(id, shot_order, description, scene_id)",
+      )
+      .eq("timeline_id", timelineId)
+      .order("clip_order")
+      .order("created_at"),
+    supabase
+      .from("subtitles")
+      .select("id, start_seconds, end_seconds, text")
+      .eq("timeline_id", timelineId)
+      .order("start_seconds"),
+    supabase
+      .from("voice_lines")
+      .select("id, text")
+      .eq("project_id", projectId)
+      .order("line_order"),
+  ]);
 
   if (!timeline) {
     notFound();
@@ -80,6 +96,13 @@ export default async function TimelineDetailPage({
     }));
 
   const nextClipOrder = (clips?.at(-1)?.clip_order ?? 0) + 1;
+
+  const subtitleRows: SubtitleRow[] = (subtitles ?? []).map((s) => ({
+    id: s.id,
+    startSeconds: s.start_seconds,
+    endSeconds: s.end_seconds,
+    text: s.text,
+  }));
 
   return (
     <div className="grid gap-6 lg:grid-cols-2">
@@ -128,6 +151,21 @@ export default async function TimelineDetailPage({
             timelineId={timelineId}
             nextClipOrder={nextClipOrder}
             availableShots={availableShots}
+          />
+        </CardContent>
+      </Card>
+
+      <Card className="lg:col-span-2">
+        <CardHeader>
+          <CardTitle>Subtitles</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <SubtitlesPanel
+            orgSlug={orgSlug}
+            projectId={projectId}
+            timelineId={timelineId}
+            subtitles={subtitleRows}
+            voiceLines={voiceLines ?? []}
           />
         </CardContent>
       </Card>

@@ -10,6 +10,8 @@ export const REFERENCE_ART_TASK_TYPE: Record<ReferenceArtSubjectType, string> =
     location: "environment_concept_art",
     prop: "prop_render",
     shot: "storyboard_frame",
+    voice_line: "character_voice_line",
+    music_track: "scene_music",
   };
 
 // The reference-art graph is intentionally the same minimal
