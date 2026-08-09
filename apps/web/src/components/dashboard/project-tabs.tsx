@@ -20,6 +20,7 @@ export function ProjectTabs({ basePath }: { basePath: string }) {
     { label: "Music Studio", href: `${basePath}/music` },
     { label: "Notes", href: `${basePath}/notes` },
     { label: "Workflows", href: `${basePath}/workflows` },
+    { label: "AI Advisor", href: `${basePath}/advisor` },
   ];
 
   return (

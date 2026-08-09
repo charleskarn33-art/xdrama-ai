@@ -6,6 +6,7 @@ from pydantic import ValidationError
 from supabase import AsyncClient
 
 from app.core.config import Settings, get_settings
+from app.core.db import get_row_or_404
 from app.core.queue import dequeue_render_job, enqueue_render_job
 from app.core.supabase import get_user_scoped_client
 from app.models.render import DispatchResult
@@ -13,16 +14,6 @@ from app.workflows.comfyui_compiler import compile_to_comfyui
 from app.workflows.graph import GraphCycleError, WorkflowGraph
 
 router = APIRouter(prefix="/v1/render-jobs", tags=["render-jobs"])
-
-
-async def _get_row_or_404(
-    supabase: AsyncClient, table: str, row_id: str, select: str = "*"
-) -> dict[str, Any]:
-    response = await supabase.table(table).select(select).eq("id", row_id).maybe_single().execute()
-    data = response.data if response else None
-    if not isinstance(data, dict):
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"{table[:-1]} not found")
-    return data
 
 
 async def _fail_job(supabase: AsyncClient, job_id: str, message: str) -> DispatchResult:
@@ -60,7 +51,7 @@ async def dispatch_render_job(
     because platform-admin-only writes require bypassing a regular
     caller's RLS grants.
     """
-    job = await _get_row_or_404(supabase, "render_jobs", job_id)
+    job = await get_row_or_404(supabase, "render_jobs", job_id)
 
     if job["status"] != "queued":
         raise HTTPException(
@@ -68,7 +59,7 @@ async def dispatch_render_job(
             detail=f"Job is '{job['status']}', not 'queued'",
         )
 
-    workflow = await _get_row_or_404(supabase, "workflows", job["workflow_id"], select="graph")
+    workflow = await get_row_or_404(supabase, "workflows", job["workflow_id"], select="graph")
 
     try:
         graph = WorkflowGraph.model_validate(workflow["graph"])

@@ -1186,6 +1186,56 @@ export type Database = {
           },
         ];
       };
+      ai_suggestions: {
+        Row: {
+          id: string;
+          project_id: string;
+          role: Database["public"]["Enums"]["ai_advisor_role"];
+          prompt: string;
+          status: Database["public"]["Enums"]["ai_suggestion_status"];
+          result: Json | null;
+          error_message: string | null;
+          created_by: string;
+          created_at: string;
+          updated_at: string;
+          completed_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          project_id: string;
+          role: Database["public"]["Enums"]["ai_advisor_role"];
+          prompt: string;
+          status?: Database["public"]["Enums"]["ai_suggestion_status"];
+          result?: Json | null;
+          error_message?: string | null;
+          created_by?: string;
+          created_at?: string;
+          updated_at?: string;
+          completed_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          project_id?: string;
+          role?: Database["public"]["Enums"]["ai_advisor_role"];
+          prompt?: string;
+          status?: Database["public"]["Enums"]["ai_suggestion_status"];
+          result?: Json | null;
+          error_message?: string | null;
+          created_by?: string;
+          created_at?: string;
+          updated_at?: string;
+          completed_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "ai_suggestions_project_id_fkey";
+            columns: ["project_id"];
+            isOneToOne: false;
+            referencedRelation: "projects";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
     };
     Views: Record<string, never>;
     Functions: {
@@ -1244,6 +1294,8 @@ export type Database = {
         | "voice_line"
         | "music_track";
       timeline_transition: "cut" | "fade" | "dissolve" | "wipe";
+      ai_advisor_role: "director" | "cinematographer" | "producer";
+      ai_suggestion_status: "pending" | "running" | "completed" | "failed";
     };
     CompositeTypes: Record<string, never>;
   };

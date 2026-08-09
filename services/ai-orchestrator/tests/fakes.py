@@ -58,9 +58,25 @@ class FakeTable:
         return FakeQuery(self).update(payload)
 
 
+class FakeRpc:
+    def __init__(self, data: Any) -> None:
+        self._data = data
+
+    async def execute(self) -> FakeResponse:
+        return FakeResponse(self._data)
+
+
 class FakeSupabaseClient:
     def __init__(self) -> None:
         self._tables: dict[str, FakeTable] = {}
+        # Preset per-function-name responses for .rpc() calls. Defaults
+        # to the all-null composite shape select_model_for_task() returns
+        # for real when nothing is eligible (see the Module 7 migration) —
+        # tests that need an eligible model override this per test.
+        self.rpc_responses: dict[str, Any] = {}
 
     def table(self, name: str) -> FakeTable:
         return self._tables.setdefault(name, FakeTable())
+
+    def rpc(self, fn_name: str, _params: dict[str, Any]) -> FakeRpc:
+        return FakeRpc(self.rpc_responses.get(fn_name, {"id": None}))

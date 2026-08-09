@@ -49,13 +49,14 @@ export default function Home() {
         <CardHeader>
           <CardTitle>Foundation status</CardTitle>
           <CardDescription>
-            Modules 1–12 — repo scaffold, design system, auth/org accounts,
+            Modules 1–13 — repo scaffold, design system, auth/org accounts,
             projects, the Story Bible, Script Studio, the AI Model Manager,
             the AI Router, the AI Workflow Engine, the Character/
             Environment/Prop Studios, the Storyboard &amp; Scene Studio, the
-            Timeline Editor &amp; Movie Composer, and the Voice, Music &amp;
-            Subtitle Studios + Lip Sync are live. Creative studios ship
-            module by module from here.
+            Timeline Editor &amp; Movie Composer, the Voice, Music &amp;
+            Subtitle Studios + Lip Sync, and the AI Director/
+            Cinematographer/Producer advisor are live. Creative studios
+            ship module by module from here.
           </CardDescription>
         </CardHeader>
         <CardContent>
