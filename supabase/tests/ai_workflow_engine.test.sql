@@ -53,6 +53,67 @@ begin
   end;
 end $$;
 
+reset role;
+select public.clear_local_actor();
+
+-- ============================================================
+-- A platform admin actually exercising the write policies below (only
+-- the seed migration's superuser inserts, which bypass RLS entirely,
+-- had ever gone through workflow_templates' insert/update/delete paths
+-- before Module 15 built an admin UI for it) — a real gap in this
+-- file's original coverage, closed here rather than assumed.
+-- ============================================================
+
+set role authenticated;
+select public.set_local_actor('00000000-0000-0000-0000-000000000014'); -- noah, platform admin
+
+with inserted as (
+  insert into public.workflow_templates (slug, name, category, graph)
+  values (
+    'admin-test-template',
+    'Admin Test Template',
+    'movie',
+    '{"nodes":[{"id":"a","type":"input","config":{}}],"edges":[]}'::jsonb
+  )
+  returning id
+)
+insert into test_context (key, value)
+select 'wf_admin_template_id', id::text from inserted;
+
+do $$
+begin
+  perform test_assert(
+    'a platform admin can insert a workflow template',
+    exists (select 1 from public.workflow_templates where id = test_ctx('wf_admin_template_id')::uuid)
+  );
+end $$;
+
+update public.workflow_templates set name = 'Renamed by Admin' where id = test_ctx('wf_admin_template_id')::uuid;
+
+do $$
+begin
+  perform test_assert(
+    'a platform admin can update a workflow template',
+    (select name from public.workflow_templates where id = test_ctx('wf_admin_template_id')::uuid) = 'Renamed by Admin'
+  );
+end $$;
+
+delete from public.workflow_templates where id = test_ctx('wf_admin_template_id')::uuid;
+
+do $$
+begin
+  perform test_assert(
+    'a platform admin can delete a workflow template',
+    not exists (select 1 from public.workflow_templates where id = test_ctx('wf_admin_template_id')::uuid)
+  );
+end $$;
+
+reset role;
+select public.clear_local_actor();
+
+set role authenticated;
+select public.set_local_actor('00000000-0000-0000-0000-000000000015'); -- olivia, back to not-an-admin
+
 -- clone the movie template into a project-scoped workflow
 with inserted as (
   insert into public.workflows (project_id, name, graph, source_template_id)

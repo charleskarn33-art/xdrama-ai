@@ -49,13 +49,14 @@ export default function Home() {
         <CardHeader>
           <CardTitle>Foundation status</CardTitle>
           <CardDescription>
-            Modules 1–14 are live — from the repo scaffold and auth/org
+            Modules 1–15 are live — from the repo scaffold and auth/org
             accounts through the full creative pipeline (Story Bible, Script
             Studio, Storyboard &amp; Scene Studio, Movie Composer, Voice/
             Music/Subtitle Studios, the AI Director/Cinematographer/Producer
-            advisor) to Export Studio, all built on the shared AI Model
-            Manager, Router, and Workflow Engine. See the per-module docs for
-            details. Creative studios ship module by module from here.
+            advisor, Export Studio) to a platform-admin Workflow Template
+            builder, all built on the shared AI Model Manager, Router, and
+            Workflow Engine. See the per-module docs for details. Creative
+            studios ship module by module from here.
           </CardDescription>
         </CardHeader>
         <CardContent>

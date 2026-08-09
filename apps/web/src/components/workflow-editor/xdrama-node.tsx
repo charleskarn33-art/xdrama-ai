@@ -17,7 +17,7 @@ const TYPE_STYLE: Record<WorkflowNodeType, string> = {
   output: "border-emerald-400 dark:border-emerald-600",
 };
 
-const TYPE_LABEL: Record<WorkflowNodeType, string> = {
+export const TYPE_LABEL: Record<WorkflowNodeType, string> = {
   input: "Input",
   model_task: "Model task",
   output: "Output",
@@ -33,28 +33,19 @@ export function XDramaNode({ data, selected }: NodeProps<XDramaNode>) {
       )}
     >
       {data.nodeType !== "input" && (
-        <Handle
-          type="target"
-          position={Position.Left}
-          className="!bg-muted-foreground"
-        />
+        <Handle type="target" position={Position.Left} className="!bg-muted-foreground" />
       )}
       <div className="text-muted-foreground text-[10px] font-semibold tracking-wide uppercase">
         {TYPE_LABEL[data.nodeType]}
       </div>
       <div className="text-sm font-medium">{data.label}</div>
-      {data.nodeType === "model_task" &&
-        typeof data.config.taskType === "string" && (
-          <div className="text-muted-foreground mt-1 text-xs">
-            task: {data.config.taskType}
-          </div>
-        )}
+      {data.nodeType === "model_task" && typeof data.config.taskType === "string" && (
+        <div className="text-muted-foreground mt-1 text-xs">
+          task: {data.config.taskType}
+        </div>
+      )}
       {data.nodeType !== "output" && (
-        <Handle
-          type="source"
-          position={Position.Right}
-          className="!bg-muted-foreground"
-        />
+        <Handle type="source" position={Position.Right} className="!bg-muted-foreground" />
       )}
     </div>
   );

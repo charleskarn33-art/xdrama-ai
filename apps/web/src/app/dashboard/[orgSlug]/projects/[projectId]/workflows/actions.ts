@@ -14,6 +14,7 @@ import {
   type CreateRenderJobInput,
   type CreateWorkflowFromTemplateInput,
   type UpdateWorkflowInput,
+  type WorkflowGraph,
 } from "@/lib/validations/workflows";
 
 export type ActionResult = { error: string } | { error: null };
@@ -163,4 +164,19 @@ export async function createAndDispatchRenderJob(
           : "Dispatch request failed",
     };
   }
+}
+
+// A (orgSlug, projectId, workflowId)-bound version of updateWorkflow,
+// taking just a graph — the shape Module 15's shared WorkflowEditor's
+// onSave prop expects. Server Components pass this down to the (client)
+// editor via `updateWorkflowGraph.bind(null, orgSlug, projectId,
+// workflowId)`, the documented pattern for handing a Client Component a
+// Server Action pre-bound with extra arguments.
+export async function updateWorkflowGraph(
+  orgSlug: string,
+  projectId: string,
+  workflowId: string,
+  graph: WorkflowGraph,
+): Promise<ActionResult> {
+  return updateWorkflow(orgSlug, projectId, { workflowId, graph });
 }

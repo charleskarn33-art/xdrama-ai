@@ -3,10 +3,12 @@ import { notFound } from "next/navigation";
 
 import { requireUser } from "@/lib/supabase/session";
 import { workflowGraphSchema } from "@/lib/validations/workflows";
+import { WorkflowEditor } from "@/components/workflow-editor/workflow-editor";
 
-import { WorkflowEditor } from "./workflow-editor";
+import { updateWorkflowGraph } from "../actions";
 import { RenderPanel } from "./render-panel";
 import { DeleteWorkflowButton } from "./delete-workflow-button";
+import { RenameWorkflowForm } from "./rename-workflow-form";
 
 export const metadata: Metadata = { title: "Workflow" };
 
@@ -44,7 +46,12 @@ export default async function WorkflowDetailPage({
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold">{workflow.name}</h1>
+        <RenameWorkflowForm
+          orgSlug={orgSlug}
+          projectId={projectId}
+          workflowId={workflowId}
+          name={workflow.name}
+        />
         <DeleteWorkflowButton
           orgSlug={orgSlug}
           projectId={projectId}
@@ -53,10 +60,8 @@ export default async function WorkflowDetailPage({
       </div>
 
       <WorkflowEditor
-        orgSlug={orgSlug}
-        projectId={projectId}
-        workflowId={workflowId}
         initialGraph={initialGraph}
+        onSave={updateWorkflowGraph.bind(null, orgSlug, projectId, workflowId)}
       />
 
       <RenderPanel

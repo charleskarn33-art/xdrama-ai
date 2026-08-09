@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 const TABS = [
   { label: "Models", href: "/admin/models" },
   { label: "Router", href: "/admin/routing" },
+  { label: "Templates", href: "/admin/templates" },
 ];
 
 export function AdminNav() {

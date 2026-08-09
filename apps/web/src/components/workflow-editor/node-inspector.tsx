@@ -58,15 +58,9 @@ export function NodeInspector({
           <Label htmlFor="node-key">Key</Label>
           <Input
             id="node-key"
-            value={
-              typeof node.data.config.key === "string"
-                ? node.data.config.key
-                : ""
-            }
+            value={typeof node.data.config.key === "string" ? node.data.config.key : ""}
             onChange={(e) =>
-              onChange(node.id, {
-                config: { ...node.data.config, key: e.target.value },
-              })
+              onChange(node.id, { config: { ...node.data.config, key: e.target.value } })
             }
           />
         </div>
@@ -79,11 +73,7 @@ export function NodeInspector({
             <Input
               id="node-task-type"
               placeholder="movie, fast_draft, character_consistency..."
-              value={
-                typeof node.data.config.taskType === "string"
-                  ? node.data.config.taskType
-                  : ""
-              }
+              value={typeof node.data.config.taskType === "string" ? node.data.config.taskType : ""}
               onChange={(e) =>
                 onChange(node.id, {
                   config: { ...node.data.config, taskType: e.target.value },
@@ -104,9 +94,7 @@ export function NodeInspector({
               value={paramsText}
               onChange={(e) => applyParams(e.target.value)}
             />
-            {paramsError && (
-              <p className="text-destructive text-xs">{paramsError}</p>
-            )}
+            {paramsError && <p className="text-destructive text-xs">{paramsError}</p>}
           </div>
         </>
       )}
