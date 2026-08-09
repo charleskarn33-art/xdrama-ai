@@ -18,6 +18,7 @@ export function ProjectTabs({
     { label: "Locations", href: `${basePath}/locations` },
     { label: "Timeline", href: `${basePath}/timeline` },
     { label: "Notes", href: `${basePath}/notes` },
+    { label: "Workflows", href: `${basePath}/workflows` },
   ];
 
   return (

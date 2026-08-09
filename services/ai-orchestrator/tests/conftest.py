@@ -11,9 +11,11 @@ os.environ.setdefault("SUPABASE_SERVICE_ROLE_KEY", "test-service-role-key")
 os.environ.setdefault("SUPABASE_JWT_SECRET", TEST_JWT_SECRET)
 
 import pytest  # noqa: E402
+import redis.asyncio as redis  # noqa: E402
 from fastapi.testclient import TestClient  # noqa: E402
 from jose import jwt  # noqa: E402
 
+from app.core.config import get_settings  # noqa: E402
 from app.main import app  # noqa: E402
 
 
@@ -21,6 +23,21 @@ from app.main import app  # noqa: E402
 def client() -> TestClient:
     with TestClient(app) as test_client:
         yield test_client
+
+
+@pytest.fixture
+async def redis_available() -> None:
+    """Skips the test if Redis isn't reachable, and flushes the test db
+    first — a throwaway local Redis, same posture as the throwaway
+    Postgres database supabase/tests/run_tests.sh recreates every run, so
+    one test's leftover queue entries can't affect another's."""
+    client = redis.from_url(get_settings().redis_url, decode_responses=True)
+    try:
+        await client.ping()
+    except Exception:
+        pytest.skip("Redis is not reachable at REDIS_URL")
+    await client.flushdb()
+    await client.aclose()
 
 
 def make_token(**overrides: Any) -> str:

@@ -21,6 +21,11 @@ class Settings(BaseSettings):
     supabase_url: str = "http://localhost:54321"
     supabase_jwt_secret: str = ""
     supabase_service_role_key: str = ""
+    # Public anon key, safe to ship to a browser — used to build per-request
+    # clients scoped to the calling user's own JWT (see
+    # app/core/supabase.py's get_user_scoped_client), not privilege
+    # escalation like the service-role key.
+    supabase_anon_key: str = ""
 
     redis_url: str = "redis://localhost:6379/0"
 

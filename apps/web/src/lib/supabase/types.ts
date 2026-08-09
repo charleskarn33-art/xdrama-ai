@@ -570,6 +570,150 @@ export type Database = {
         };
         Relationships: [];
       };
+      workflow_templates: {
+        Row: {
+          id: string;
+          slug: string;
+          name: string;
+          description: string | null;
+          category: string;
+          graph: Json;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          slug: string;
+          name: string;
+          description?: string | null;
+          category: string;
+          graph: Json;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          slug?: string;
+          name?: string;
+          description?: string | null;
+          category?: string;
+          graph?: Json;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      workflows: {
+        Row: {
+          id: string;
+          project_id: string;
+          name: string;
+          graph: Json;
+          source_template_id: string | null;
+          created_by: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          project_id: string;
+          name: string;
+          graph: Json;
+          source_template_id?: string | null;
+          created_by?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          project_id?: string;
+          name?: string;
+          graph?: Json;
+          source_template_id?: string | null;
+          created_by?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "workflows_project_id_fkey";
+            columns: ["project_id"];
+            isOneToOne: false;
+            referencedRelation: "projects";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "workflows_source_template_id_fkey";
+            columns: ["source_template_id"];
+            isOneToOne: false;
+            referencedRelation: "workflow_templates";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      render_jobs: {
+        Row: {
+          id: string;
+          project_id: string;
+          workflow_id: string;
+          status: Database["public"]["Enums"]["render_job_status"];
+          input_params: Json;
+          output_asset_url: string | null;
+          error_message: string | null;
+          progress: number | null;
+          created_by: string;
+          created_at: string;
+          updated_at: string;
+          started_at: string | null;
+          completed_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          project_id: string;
+          workflow_id: string;
+          status?: Database["public"]["Enums"]["render_job_status"];
+          input_params?: Json;
+          output_asset_url?: string | null;
+          error_message?: string | null;
+          progress?: number | null;
+          created_by?: string;
+          created_at?: string;
+          updated_at?: string;
+          started_at?: string | null;
+          completed_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          project_id?: string;
+          workflow_id?: string;
+          status?: Database["public"]["Enums"]["render_job_status"];
+          input_params?: Json;
+          output_asset_url?: string | null;
+          error_message?: string | null;
+          progress?: number | null;
+          created_by?: string;
+          created_at?: string;
+          updated_at?: string;
+          started_at?: string | null;
+          completed_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "render_jobs_project_id_fkey";
+            columns: ["project_id"];
+            isOneToOne: false;
+            referencedRelation: "projects";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "render_jobs_workflow_id_fkey";
+            columns: ["workflow_id"];
+            isOneToOne: false;
+            referencedRelation: "workflows";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
     };
     Views: Record<string, never>;
     Functions: {
@@ -616,6 +760,7 @@ export type Database = {
       ai_model_category: "video" | "image" | "audio" | "voice" | "lip_sync" | "llm";
       ai_model_install_status: "not_installed" | "downloading" | "installed" | "failed";
       ai_model_health_status: "unknown" | "healthy" | "unhealthy";
+      render_job_status: "queued" | "running" | "completed" | "failed" | "cancelled";
     };
     CompositeTypes: Record<string, never>;
   };

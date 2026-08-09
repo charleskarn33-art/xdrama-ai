@@ -27,6 +27,16 @@ grant usage on schema auth to anon, authenticated, service_role;
 create schema extensions;
 grant usage on schema extensions to anon, authenticated, service_role;
 
+-- Supabase's platform bootstrap also creates this publication; migrations
+-- add tables to it (e.g. Module 8's `alter publication ... add table
+-- render_jobs`) to enable Realtime for them.
+do $$
+begin
+  if not exists (select 1 from pg_publication where pubname = 'supabase_realtime') then
+    create publication supabase_realtime;
+  end if;
+end $$;
+
 create table auth.users (
   id uuid primary key default gen_random_uuid(),
   email text unique not null,

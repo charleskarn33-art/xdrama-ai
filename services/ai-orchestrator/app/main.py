@@ -7,6 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.api.health import router as health_router
 from app.api.me import router as me_router
 from app.api.models import router as models_router
+from app.api.render_jobs import router as render_jobs_router
 from app.core.config import get_settings
 from app.core.supabase import create_service_client
 
@@ -42,3 +43,4 @@ app.add_middleware(
 app.include_router(health_router)
 app.include_router(me_router, prefix="/api")
 app.include_router(models_router, prefix="/api")
+app.include_router(render_jobs_router, prefix="/api")
