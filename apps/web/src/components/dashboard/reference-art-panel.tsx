@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { usePathname } from "next/navigation";
 
 import {
   generateReferenceArt,
@@ -38,6 +39,7 @@ export function ReferenceArtPanel({
   initialWorkflowId: string | null;
   initialJobs: ReferenceArtJob[];
 }) {
+  const pathname = usePathname();
   const [workflowId, setWorkflowId] = React.useState(initialWorkflowId);
   const [jobs, setJobs] = React.useState<ReferenceArtJob[]>(initialJobs);
   const [isGenerating, setIsGenerating] = React.useState(false);
@@ -89,6 +91,7 @@ export function ReferenceArtPanel({
       subjectId,
       subjectName,
       description,
+      path: pathname,
     });
     if (result.error !== null) {
       setError(result.error);

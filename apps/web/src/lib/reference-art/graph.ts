@@ -9,6 +9,7 @@ export const REFERENCE_ART_TASK_TYPE: Record<ReferenceArtSubjectType, string> =
     character: "character_reference_image",
     location: "environment_concept_art",
     prop: "prop_render",
+    shot: "storyboard_frame",
   };
 
 // The reference-art graph is intentionally the same minimal

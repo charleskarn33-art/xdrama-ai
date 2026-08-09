@@ -97,9 +97,7 @@ export async function generateReferenceArt(
     return { error: jobError?.message ?? "Could not create render job" };
   }
 
-  revalidatePath(
-    `/dashboard/${orgSlug}/projects/${parsed.data.projectId}/${parsed.data.subjectType}s/${parsed.data.subjectId}`,
-  );
+  revalidatePath(parsed.data.path);
 
   try {
     await callOrchestrator<{ ok: boolean; status: string; message: string }>(

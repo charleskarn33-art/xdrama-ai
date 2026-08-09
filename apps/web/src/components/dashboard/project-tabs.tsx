@@ -13,6 +13,7 @@ export function ProjectTabs({ basePath }: { basePath: string }) {
     { label: "Characters", href: `${basePath}/characters` },
     { label: "Locations", href: `${basePath}/locations` },
     { label: "Props", href: `${basePath}/props` },
+    { label: "Scenes", href: `${basePath}/scenes` },
     { label: "Timeline", href: `${basePath}/timeline` },
     { label: "Notes", href: `${basePath}/notes` },
     { label: "Workflows", href: `${basePath}/workflows` },

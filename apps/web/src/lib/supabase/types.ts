@@ -764,6 +764,163 @@ export type Database = {
           },
         ];
       };
+      scenes: {
+        Row: {
+          id: string;
+          project_id: string;
+          script_id: string | null;
+          location_id: string | null;
+          title: string;
+          description: string | null;
+          scene_order: number;
+          created_by: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          project_id: string;
+          script_id?: string | null;
+          location_id?: string | null;
+          title: string;
+          description?: string | null;
+          scene_order?: number;
+          created_by?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          project_id?: string;
+          script_id?: string | null;
+          location_id?: string | null;
+          title?: string;
+          description?: string | null;
+          scene_order?: number;
+          created_by?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "scenes_project_id_fkey";
+            columns: ["project_id"];
+            isOneToOne: false;
+            referencedRelation: "projects";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "scenes_script_id_fkey";
+            columns: ["script_id"];
+            isOneToOne: false;
+            referencedRelation: "scripts";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "scenes_location_id_fkey";
+            columns: ["location_id"];
+            isOneToOne: false;
+            referencedRelation: "locations";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      shots: {
+        Row: {
+          id: string;
+          project_id: string;
+          scene_id: string;
+          shot_order: number;
+          shot_type: string | null;
+          description: string;
+          duration_seconds: number | null;
+          created_by: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          project_id?: string;
+          scene_id: string;
+          shot_order?: number;
+          shot_type?: string | null;
+          description: string;
+          duration_seconds?: number | null;
+          created_by?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          project_id?: string;
+          scene_id?: string;
+          shot_order?: number;
+          shot_type?: string | null;
+          description?: string;
+          duration_seconds?: number | null;
+          created_by?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "shots_project_id_fkey";
+            columns: ["project_id"];
+            isOneToOne: false;
+            referencedRelation: "projects";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "shots_scene_id_fkey";
+            columns: ["scene_id"];
+            isOneToOne: false;
+            referencedRelation: "scenes";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      shot_characters: {
+        Row: {
+          id: string;
+          project_id: string;
+          shot_id: string;
+          character_id: string;
+          created_by: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          project_id?: string;
+          shot_id: string;
+          character_id: string;
+          created_by?: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          project_id?: string;
+          shot_id?: string;
+          character_id?: string;
+          created_by?: string;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "shot_characters_shot_id_fkey";
+            columns: ["shot_id"];
+            isOneToOne: false;
+            referencedRelation: "shots";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "shot_characters_character_id_fkey";
+            columns: ["character_id"];
+            isOneToOne: false;
+            referencedRelation: "characters";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
     };
     Views: Record<string, never>;
     Functions: {
@@ -814,7 +971,7 @@ export type Database = {
       ai_model_health_status: "unknown" | "healthy" | "unhealthy";
       render_job_status:
         "queued" | "running" | "completed" | "failed" | "cancelled";
-      workflow_subject_type: "character" | "location" | "prop";
+      workflow_subject_type: "character" | "location" | "prop" | "shot";
     };
     CompositeTypes: Record<string, never>;
   };
