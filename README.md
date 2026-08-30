@@ -3,7 +3,7 @@
 An AI Operating System for Filmmakers — turn a script, a prompt, or an uploaded asset into a finished movie, without ever touching the AI pipeline underneath.
 
 Full architecture, audit, and module-by-module roadmap: [`docs/00-technical-audit-and-roadmap.md`](docs/00-technical-audit-and-roadmap.md).
-Per-module write-ups: [`docs/01-module-1-foundation.md`](docs/01-module-1-foundation.md), [`docs/02-module-2-auth-core-schema.md`](docs/02-module-2-auth-core-schema.md), [`docs/03-module-3-projects-dashboard.md`](docs/03-module-3-projects-dashboard.md), [`docs/04-module-4-story-bible.md`](docs/04-module-4-story-bible.md), [`docs/05-module-5-script-studio.md`](docs/05-module-5-script-studio.md), [`docs/06-module-6-ai-model-manager.md`](docs/06-module-6-ai-model-manager.md), [`docs/07-module-7-ai-router.md`](docs/07-module-7-ai-router.md), [`docs/08-module-8-ai-workflow-engine.md`](docs/08-module-8-ai-workflow-engine.md), [`docs/09-module-9-character-environment-prop-studios.md`](docs/09-module-9-character-environment-prop-studios.md), [`docs/10-module-10-storyboard-scene-studio.md`](docs/10-module-10-storyboard-scene-studio.md), [`docs/11-module-11-timeline-editor-movie-composer.md`](docs/11-module-11-timeline-editor-movie-composer.md), [`docs/12-module-12-voice-music-subtitle-lip-sync.md`](docs/12-module-12-voice-music-subtitle-lip-sync.md), [`docs/13-module-13-ai-director-cinematographer-producer.md`](docs/13-module-13-ai-director-cinematographer-producer.md), [`docs/14-module-14-export-studio.md`](docs/14-module-14-export-studio.md), [`docs/15-module-15-templates-workflow-builder-ui.md`](docs/15-module-15-templates-workflow-builder-ui.md), [`docs/16-module-16-admin-dashboard-ops.md`](docs/16-module-16-admin-dashboard-ops.md).
+Per-module write-ups: [`docs/01-module-1-foundation.md`](docs/01-module-1-foundation.md), [`docs/02-module-2-auth-core-schema.md`](docs/02-module-2-auth-core-schema.md), [`docs/03-module-3-projects-dashboard.md`](docs/03-module-3-projects-dashboard.md), [`docs/04-module-4-story-bible.md`](docs/04-module-4-story-bible.md), [`docs/05-module-5-script-studio.md`](docs/05-module-5-script-studio.md), [`docs/06-module-6-ai-model-manager.md`](docs/06-module-6-ai-model-manager.md), [`docs/07-module-7-ai-router.md`](docs/07-module-7-ai-router.md), [`docs/08-module-8-ai-workflow-engine.md`](docs/08-module-8-ai-workflow-engine.md), [`docs/09-module-9-character-environment-prop-studios.md`](docs/09-module-9-character-environment-prop-studios.md), [`docs/10-module-10-storyboard-scene-studio.md`](docs/10-module-10-storyboard-scene-studio.md), [`docs/11-module-11-timeline-editor-movie-composer.md`](docs/11-module-11-timeline-editor-movie-composer.md), [`docs/12-module-12-voice-music-subtitle-lip-sync.md`](docs/12-module-12-voice-music-subtitle-lip-sync.md), [`docs/13-module-13-ai-director-cinematographer-producer.md`](docs/13-module-13-ai-director-cinematographer-producer.md), [`docs/14-module-14-export-studio.md`](docs/14-module-14-export-studio.md), [`docs/15-module-15-templates-workflow-builder-ui.md`](docs/15-module-15-templates-workflow-builder-ui.md), [`docs/16-module-16-admin-dashboard-ops.md`](docs/16-module-16-admin-dashboard-ops.md), [`docs/17-module-17-modal-gpu-compute-provider.md`](docs/17-module-17-modal-gpu-compute-provider.md).
 
 ## Repository layout
 
@@ -11,14 +11,15 @@ Per-module write-ups: [`docs/01-module-1-foundation.md`](docs/01-module-1-founda
 apps/
   web/                  Next.js 16 app (frontend) — deployed to Vercel
 services/
-  ai-orchestrator/       FastAPI service — the only thing that talks to ComfyUI/GPU render nodes
+  ai-orchestrator/       FastAPI service — the only thing that talks to Modal/ComfyUI
+  modal-worker/           Modal app — the GPU worker, runs ComfyUI, never exposed to end users
 supabase/
   migrations/             SQL migrations (source of truth for the database schema)
   config.toml             Supabase CLI project config
 infra/
   nginx/                  Reverse proxy config for AI infrastructure
 docs/                     Architecture, audits, and per-module documentation
-docker-compose.yml         Local dev / GPU render-node infrastructure (not the Next.js app)
+docker-compose.yml         Local dev infrastructure (ai-orchestrator + Redis; not the Next.js app, not GPU compute — see services/modal-worker)
 ```
 
 ## Prerequisites
@@ -27,6 +28,7 @@ docker-compose.yml         Local dev / GPU render-node infrastructure (not the N
 - Python 3.11+
 - Docker (for `ai-orchestrator` + Redis locally)
 - [Supabase CLI](https://supabase.com/docs/guides/cli) (`npx supabase ...`) and a Supabase project
+- A [Modal](https://modal.com) account, only if you want real GPU dispatch to work (`services/modal-worker`) — everything else runs and reports honest failures without one
 
 ## Getting started
 
@@ -44,7 +46,7 @@ Runs at http://localhost:3000. Health check: `GET /api/health`.
 
 ```bash
 cd services/ai-orchestrator
-cp .env.example .env   # fill in SUPABASE_JWT_SECRET from Project Settings > API
+cp .env.example .env   # fill in SUPABASE_JWT_SECRET, MODAL_TOKEN_ID/MODAL_TOKEN_SECRET
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements-dev.txt
 uvicorn app.main:app --reload
@@ -56,7 +58,11 @@ Runs at http://localhost:8000. Health check: `GET /health`. Or via Docker:
 docker compose up ai-orchestrator redis
 ```
 
-### 3. Database (Supabase)
+### 3. GPU compute (`services/modal-worker`)
+
+Render dispatch goes through [Modal](https://modal.com) serverless GPU compute, not a dedicated GPU server — see [`docs/17-module-17-modal-gpu-compute-provider.md`](docs/17-module-17-modal-gpu-compute-provider.md) for the architecture and [`services/modal-worker/README.md`](services/modal-worker/README.md) for deploy steps. Without `MODAL_TOKEN_ID`/`MODAL_TOKEN_SECRET` set, render dispatch reports an honest "Modal is not configured" failure rather than pretending to work — everything else in the app functions normally either way.
+
+### 4. Database (Supabase)
 
 ```bash
 npx supabase link --project-ref <your-project-ref>

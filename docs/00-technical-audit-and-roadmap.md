@@ -156,3 +156,9 @@ This is a ~1-year roadmap at sustained single-team velocity; it compresses if yo
 ## Next step
 
 Per your Development Rules, I'm stopping here for approval before writing any code. Proposed next action: **Module 1 — Foundation & Repo Scaffold** (monorepo, Next.js 16 + TS + Tailwind + shadcn/ui, Supabase wiring, CI). I'll deliver that module with architecture explanation, SQL (if any), API, UI, docs, tests, migration notes, and deployment instructions, per your format, then stop for approval again before Module 2.
+
+---
+
+## Post-Module-16 architecture update
+
+After all 16 modules above shipped, the GPU-infrastructure assumption in Section 3/5 — a dedicated Ubuntu GPU server behind Nginx — was explicitly replaced with [Modal](https://modal.com) serverless GPU compute, via a provider-agnostic `AIComputeProvider` abstraction so a dedicated server (or another provider) can still be added later without rewriting the application. This document is left as the historical record of the original plan; see [`docs/17-module-17-modal-gpu-compute-provider.md`](17-module-17-modal-gpu-compute-provider.md) for the actual architecture as built.

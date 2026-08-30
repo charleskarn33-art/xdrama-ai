@@ -29,7 +29,7 @@ export default async function WorkflowDetailPage({
       .single(),
     supabase
       .from("render_jobs")
-      .select("id, status, error_message, created_at")
+      .select("id, status, stage, error_message, created_at")
       .eq("workflow_id", workflowId)
       .order("created_at", { ascending: false }),
   ]);

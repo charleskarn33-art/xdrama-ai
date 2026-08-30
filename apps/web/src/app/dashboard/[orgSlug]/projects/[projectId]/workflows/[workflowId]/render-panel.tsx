@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 type RenderJob = {
   id: string;
   status: string;
+  stage: string | null;
   error_message: string | null;
   created_at: string;
 };
@@ -104,10 +105,17 @@ export function RenderPanel({
               <span className="text-muted-foreground font-mono text-xs">
                 {job.id.slice(0, 8)}
               </span>
-              <span
-                className={`rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_STYLE[job.status] ?? ""}`}
-              >
-                {job.status}
+              <span className="flex items-center gap-1.5">
+                {job.status === "running" && job.stage && (
+                  <span className="text-muted-foreground text-xs italic">
+                    {job.stage.replace(/_/g, " ")}
+                  </span>
+                )}
+                <span
+                  className={`rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_STYLE[job.status] ?? ""}`}
+                >
+                  {job.status}
+                </span>
               </span>
             </li>
           ))}

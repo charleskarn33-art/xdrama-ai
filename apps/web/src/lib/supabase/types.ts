@@ -532,6 +532,7 @@ export type Database = {
           health_status: Database["public"]["Enums"]["ai_model_health_status"];
           last_health_check_at: string | null;
           gpu_assignment: string | null;
+          compute_function_name: string | null;
           benchmark_results: Json | null;
           metadata: Json;
           created_at: string;
@@ -553,6 +554,7 @@ export type Database = {
           health_status?: Database["public"]["Enums"]["ai_model_health_status"];
           last_health_check_at?: string | null;
           gpu_assignment?: string | null;
+          compute_function_name?: string | null;
           benchmark_results?: Json | null;
           metadata?: Json;
           created_at?: string;
@@ -574,6 +576,7 @@ export type Database = {
           health_status?: Database["public"]["Enums"]["ai_model_health_status"];
           last_health_check_at?: string | null;
           gpu_assignment?: string | null;
+          compute_function_name?: string | null;
           benchmark_results?: Json | null;
           metadata?: Json;
           created_at?: string;
@@ -707,6 +710,9 @@ export type Database = {
           project_id: string;
           workflow_id: string;
           status: Database["public"]["Enums"]["render_job_status"];
+          stage: Database["public"]["Enums"]["render_job_stage"] | null;
+          compute_provider: string;
+          provider_job_id: string | null;
           input_params: Json;
           output_asset_url: string | null;
           error_message: string | null;
@@ -722,6 +728,9 @@ export type Database = {
           project_id: string;
           workflow_id: string;
           status?: Database["public"]["Enums"]["render_job_status"];
+          stage?: Database["public"]["Enums"]["render_job_stage"] | null;
+          compute_provider?: string;
+          provider_job_id?: string | null;
           input_params?: Json;
           output_asset_url?: string | null;
           error_message?: string | null;
@@ -737,6 +746,9 @@ export type Database = {
           project_id?: string;
           workflow_id?: string;
           status?: Database["public"]["Enums"]["render_job_status"];
+          stage?: Database["public"]["Enums"]["render_job_stage"] | null;
+          compute_provider?: string;
+          provider_job_id?: string | null;
           input_params?: Json;
           output_asset_url?: string | null;
           error_message?: string | null;
@@ -1388,6 +1400,12 @@ export type Database = {
       ai_model_health_status: "unknown" | "healthy" | "unhealthy";
       render_job_status:
         "queued" | "running" | "completed" | "failed" | "cancelled";
+      render_job_stage:
+        | "starting"
+        | "downloading_models"
+        | "generating"
+        | "post_processing"
+        | "uploading";
       workflow_subject_type:
         | "character"
         | "location"

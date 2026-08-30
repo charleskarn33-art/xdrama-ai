@@ -29,11 +29,23 @@ class Settings(BaseSettings):
 
     redis_url: str = "redis://localhost:6379/0"
 
-    # Comma-separated list of ComfyUI-capable render node base URLs. Empty
-    # means no GPU infrastructure is attached yet — install/health-check
-    # requests report that honestly (see app/api/models.py) rather than
-    # simulating work that can't actually happen.
+    # Comma-separated list of ComfyUI-capable render node base URLs, used
+    # only by the AI Model Manager's install/uninstall/health-check
+    # endpoints (app/api/models.py) — a Module 6 integration point that
+    # predates Module 17's compute-provider abstraction and hasn't been
+    # migrated onto it (see docs/17-module-17-modal-gpu-compute-
+    # provider.md). Empty means no such node is attached; those endpoints
+    # report that honestly rather than simulating work that can't happen.
     render_node_urls: str = ""
+
+    # Which AIComputeProvider implementation app/api/render_jobs.py
+    # dispatches generation jobs to (see app/core/compute/). "modal" is
+    # the only implementation that exists; the field is still a string,
+    # not a hardcoded constant, so adding a second provider later is a
+    # new branch in app/core/compute/factory.py, not a schema change.
+    ai_compute_provider: str = "modal"
+    modal_token_id: str = ""
+    modal_token_secret: str = ""
 
     cors_allow_origins: str = "http://localhost:3000"
 
@@ -44,6 +56,10 @@ class Settings(BaseSettings):
     @property
     def render_nodes(self) -> list[str]:
         return [url.strip() for url in self.render_node_urls.split(",") if url.strip()]
+
+    @property
+    def modal_configured(self) -> bool:
+        return bool(self.modal_token_id.strip() and self.modal_token_secret.strip())
 
 
 @lru_cache

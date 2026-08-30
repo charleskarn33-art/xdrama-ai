@@ -1,10 +1,16 @@
 from datetime import UTC, datetime
-from typing import Annotated, Any
+from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import ValidationError
 from supabase import AsyncClient
 
+from app.core.compute import (
+    AIComputeProvider,
+    ComputeJobSpec,
+    ComputeProviderError,
+    get_compute_provider,
+)
 from app.core.config import Settings, get_settings
 from app.core.db import get_row_or_404
 from app.core.queue import dequeue_render_job, enqueue_render_job
@@ -23,23 +29,17 @@ async def _fail_job(supabase: AsyncClient, job_id: str, message: str) -> Dispatc
     return DispatchResult(ok=False, status="failed", message=message)
 
 
-async def _dispatch_compiled_workflow(node_url: str, compiled: dict[str, Any]) -> None:
-    """Submits a compiled ComfyUI prompt to a GPU render node. Not
-    implemented: no render node exists to submit to yet, and no render
-    node agent API has been designed (see the equivalent note in Module
-    6's app/api/models.py) — real infrastructure follow-up, not
-    buildable today."""
-    raise NotImplementedError("Render node dispatch is not implemented yet")
-
-
 @router.post("/{job_id}/dispatch", response_model=DispatchResult)
 async def dispatch_render_job(
     job_id: str,
     supabase: Annotated[AsyncClient, Depends(get_user_scoped_client)],
     settings: Annotated[Settings, Depends(get_settings)],
+    compute_provider: Annotated[AIComputeProvider, Depends(get_compute_provider)],
 ) -> DispatchResult:
-    """Compiles a render job's workflow and attempts to dispatch it to a
-    GPU render node.
+    """Compiles a render job's workflow and attempts to dispatch it to
+    Modal for GPU execution (see app/core/compute/ — Module 17 replaced
+    the original dedicated-GPU-server assumption with Modal serverless
+    compute, behind the AIComputeProvider abstraction).
 
     Uses a client scoped to the caller's own JWT, not the service-role
     client: any project member may dispatch a job for their project (the
@@ -67,12 +67,12 @@ async def dispatch_render_job(
     except (ValidationError, GraphCycleError) as exc:
         return await _fail_job(supabase, job_id, f"Invalid workflow graph: {exc}")
 
-    if not settings.render_nodes:
+    if not settings.modal_configured:
         return await _fail_job(
             supabase,
             job_id,
-            "No render nodes configured (RENDER_NODE_URLS is empty). "
-            "Attach a GPU node to enable rendering.",
+            "Modal is not configured (MODAL_TOKEN_ID/MODAL_TOKEN_SECRET are empty). "
+            "Set them and deploy services/modal-worker/comfyui_app.py to enable rendering.",
         )
 
     # Prove the queue round-trip for real rather than assuming a worker
@@ -83,13 +83,20 @@ async def dispatch_render_job(
     if dequeued_id != job_id:
         return await _fail_job(supabase, job_id, "Render queue did not return the enqueued job")
 
+    spec = ComputeJobSpec(job_id=job_id, compiled_workflow=compiled)
     try:
-        await _dispatch_compiled_workflow(settings.render_nodes[0], compiled)
-    except NotImplementedError as exc:
+        handle = await compute_provider.submit(spec)
+    except ComputeProviderError as exc:
         return await _fail_job(supabase, job_id, str(exc))
 
     now = datetime.now(UTC).isoformat()
-    await supabase.table("render_jobs").update({"status": "running", "started_at": now}).eq(
-        "id", job_id
-    ).execute()
-    return DispatchResult(ok=True, status="running", message="Dispatched.")
+    await supabase.table("render_jobs").update(
+        {
+            "status": "running",
+            "stage": "starting",
+            "started_at": now,
+            "compute_provider": "modal",
+            "provider_job_id": handle.provider_job_id,
+        }
+    ).eq("id", job_id).execute()
+    return DispatchResult(ok=True, status="running", message="Dispatched to Modal.")
